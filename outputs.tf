@@ -33,12 +33,38 @@ output "alb_dns_name" {
   value       = module.ecs.alb_dns_name
 }
 
-output "jenkins_public_ip" {
-  description = "Public IP address of Jenkins server"
-  value       = module.cicd.jenkins_public_ip
+output "jenkins_load_balancer_dns" {
+  description = "DNS name of the Jenkins load balancer"
+  value       = module.cicd.jenkins_load_balancer_dns
 }
 
 output "database_endpoint" {
   description = "Endpoint of the RDS database"
   value       = module.database.db_instance_endpoint
+}
+
+# New outputs for ECS and EC2 managed AMI resources
+output "ecs_optimized_ami_id" {
+  description = "ID of the ECS-optimized AMI being used"
+  value       = module.ec2.ecs_optimized_ami_id
+}
+
+output "autoscaling_group_name" {
+  description = "Name of the Auto Scaling Group for ECS container instances"
+  value       = module.ec2.autoscaling_group_name
+}
+
+output "launch_template_id" {
+  description = "ID of the Launch Template"
+  value       = module.ec2.launch_template_id
+}
+
+output "codedeploy_app_name" {
+  description = "Name of the CodeDeploy application"
+  value       = module.ecs.codedeploy_app_name
+}
+
+output "infrastructure_alerts_topic_arn" {
+  description = "ARN of the SNS topic for infrastructure alerts"
+  value       = module.monitoring.infrastructure_alerts_topic_arn
 }

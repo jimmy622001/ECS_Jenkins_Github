@@ -78,3 +78,15 @@ variable "jenkins_security_group" {
   type        = string
   default     = ""
 }
+
+variable "service_desired_count" {
+  description = "Desired number of tasks for the ECS service"
+  type        = number
+  default     = 2
+}
+
+variable "codedeploy_role_arn" {
+  description = "ARN of the CodeDeploy service role"
+  type        = string
+  default     = ""  # This will be created by the IAM module
+}

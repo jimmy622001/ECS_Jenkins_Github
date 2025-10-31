@@ -23,13 +23,12 @@ output "alb_dns_name" {
   value       = aws_lb.alb.dns_name
 }
 
-output "jenkins_public_ip" {
-  description = "Public IP of the Jenkins instance"
-  value       = var.create_jenkins ? aws_instance.jenkins[0].public_ip : null
-}
-
 output "https_listener_arn" {
   description = "ARN of the HTTPS listener"
   value       = var.create_dummy_cert ? aws_lb_listener.https[0].arn : null
 }
-# HTTPS listener ARN output removed as it's not needed for POC
+
+output "codedeploy_app_name" {
+  description = "Name of the CodeDeploy application"
+  value       = aws_codedeploy_app.main.name
+}

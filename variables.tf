@@ -85,5 +85,71 @@ variable "grafana_admin_password" {
 variable "domain_name" {
   description = "Domain name for the application"
   type        = string
+}
 
+# Variables for EC2 Auto Scaling Group
+variable "ec2_instance_type" {
+  description = "EC2 instance type for ECS container instances"
+  type        = string
+  default     = "t3.medium"
+}
+
+variable "min_instance_count" {
+  description = "Minimum number of EC2 instances in the Auto Scaling Group"
+  type        = number
+  default     = 1
+}
+
+variable "max_instance_count" {
+  description = "Maximum number of EC2 instances in the Auto Scaling Group"
+  type        = number
+  default     = 5
+}
+
+variable "desired_instance_count" {
+  description = "Desired number of EC2 instances in the Auto Scaling Group"
+  type        = number
+  default     = 2
+}
+
+variable "root_volume_size" {
+  description = "Root volume size in GB for EC2 instances"
+  type        = number
+  default     = 30
+}
+
+variable "patch_schedule" {
+  description = "Cron expression for patching schedule"
+  type        = string
+  default     = "cron(0 2 ? * SUN *)"
+}
+
+variable "maintenance_window_schedule" {
+  description = "Cron expression for maintenance window"
+  type        = string
+  default     = "cron(0 2 ? * SUN *)"
+}
+
+variable "use_spot_instances" {
+  description = "Whether to use spot instances for ECS"
+  type        = bool
+  default     = false
+}
+
+variable "spot_price" {
+  description = "Maximum price to bid for spot instances"
+  type        = string
+  default     = null
+}
+
+variable "is_pilot_light" {
+  description = "Whether this environment is a pilot light DR setup"
+  type        = bool
+  default     = false
+}
+
+variable "failover_domain" {
+  description = "Domain name for failover routing"
+  type        = string
+  default     = null
 }
