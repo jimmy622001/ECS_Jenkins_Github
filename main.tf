@@ -61,7 +61,7 @@ module "ecs" {
   project                 = var.project_name
   domain_name             = var.domain_name
   service_desired_count   = var.desired_instance_count
-  codedeploy_role_arn     = module.iam.codedeploy_role_arn
+  # codedeploy_role_arn     = module.iam.codedeploy_role_arn
 }
 
 module "cicd" {
@@ -94,7 +94,7 @@ module "ec2" {
   patch_schedule       = var.patch_schedule
   maintenance_window_schedule = var.maintenance_window_schedule
   ssm_service_role_arn = module.iam.ssm_service_role_arn
-  sns_topic_arn        = module.monitoring.infrastructure_alerts_topic_arn
+  sns_topic_arn            = (terraform.workspace == "dr" && var.disable_monitoring) ? "" : module.monitoring[0].infrastructure_alerts_topic_arn
   additional_tags       = {
     ManagedBy = "Terraform"
     AutoUpdate = "true"

@@ -1,3 +1,8 @@
+variable "project" {
+  description = "Project name for resource naming and tagging"
+  type        = string
+}
+
 variable "vpc_id" {
   description = "ID of the VPC"
   type        = string

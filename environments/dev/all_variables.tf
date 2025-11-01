@@ -9,6 +9,11 @@ variable "aws_profile" {
   default     = ""
 }
 
+variable "project_name" {
+  description = "Name of the project"
+  type        = string
+}
+
 variable "vpc_cidr" {
   description = "CIDR block for the VPC"
   type        = string
@@ -39,22 +44,16 @@ variable "environment" {
   type        = string
 }
 
-variable "db_username" {
-  description = "Database username"
-  type        = string
-  sensitive   = true
-}
-
-variable "db_password" {
-  description = "Database password"
-  type        = string
-  sensitive   = true
-}
-
 variable "db_name" {
   description = "Database name"
   type        = string
   default     = "appdb"
+}
+
+variable "container_image" {
+  description = "Docker image to use"
+  type        = string
+  default     = "nginx:alpine"
 }
 
 variable "container_port" {
@@ -72,20 +71,28 @@ variable "jenkins_instance_type" {
   type        = string
   default     = "t3.micro"
 }
+
+variable "jenkins_version" {
+  description = "Jenkins version to install"
+  type        = string
+  default     = "2.222.1"
+}
+
 variable "jenkins_role_name" {
   description = "Name of the IAM role for Jenkins"
   type        = string
 }
 
-variable "project_name" {
-  description = "Name of the project"
-  type        = string
+variable "trusted_ips" {
+  description = "List of trusted IP addresses for security groups"
+  type        = list(string)
+  default     = ["0.0.0.0/0"]
 }
-variable "grafana_admin_password" {
-  description = "Admin password for Grafana"
-  type        = string
-  sensitive   = true
 
+variable "grafana_admin_user" {
+  description = "Grafana admin username"
+  type        = string
+  default     = "admin"
 }
 
 variable "domain_name" {
@@ -93,7 +100,6 @@ variable "domain_name" {
   type        = string
 }
 
-# Variables for EC2 Auto Scaling Group
 variable "ec2_instance_type" {
   description = "EC2 instance type for ECS container instances"
   type        = string
@@ -116,12 +122,6 @@ variable "desired_instance_count" {
   description = "Desired number of EC2 instances in the Auto Scaling Group"
   type        = number
   default     = 2
-}
-
-variable "root_volume_size" {
-  description = "Root volume size in GB for EC2 instances"
-  type        = number
-  default     = 30
 }
 
 variable "patch_schedule" {
@@ -154,10 +154,16 @@ variable "is_pilot_light" {
   default     = false
 }
 
-variable "failover_domain" {
-  description = "Domain name for failover routing"
-  type        = string
-  default     = null
+variable "disable_monitoring" {
+  description = "Whether to disable monitoring"
+  type        = bool
+  default     = false
+}
+
+variable "enable_dr_monitoring" {
+  description = "Whether to enable DR monitoring"
+  type        = bool
+  default     = false
 }
 
 variable "additional_tags" {
@@ -167,25 +173,13 @@ variable "additional_tags" {
 }
 
 variable "create_database" {
-  description = "Whether to create a database in the DR environment"
-  type        = bool
-  default     = false
-}
-
-variable "db_snapshot_identifier" {
-  description = "Snapshot identifier for database restoration in DR"
-  type        = string
-  default     = null
-}
-
-variable "disable_monitoring" {
-  description = "Whether to disable monitoring in DR environment"
+  description = "Whether to create a database"
   type        = bool
   default     = true
 }
 
-variable "enable_dr_monitoring" {
-  description = "Whether to enable monitoring in DR environment"
-  type        = bool
-  default     = false
+variable "db_snapshot_identifier" {
+  description = "DB snapshot identifier for restoration"
+  type        = string
+  default     = null
 }

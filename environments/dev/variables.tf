@@ -1,3 +1,9 @@
+variable "root_volume_size" {
+  description = "Root volume size in GB"
+  type        = number
+  default     = 30
+}
+
 variable "db_username" {
   description = "Database username for dev environment"
   type        = string
