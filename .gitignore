@@ -41,12 +41,3 @@ terraform.rc
 .codemie/*
 
 
-# Ignore CodeMie and virtual assistants
-.codemie/
-.codemie/*
-
-
-# Ignore CodeMie and virtual assistants
-.codemie/
-.codemie/*
-
