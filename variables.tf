@@ -39,23 +39,6 @@ variable "db_username" {
   sensitive   = true
 }
 
-variable "db_password" {
-  description = "Database password"
-  type        = string
-  sensitive   = true
-}
-
-variable "db_name" {
-  description = "Database name"
-  type        = string
-  default     = "appdb"
-}
-
-variable "container_port" {
-  description = "Port exposed by the docker image"
-  type        = number
-}
-
 variable "key_name" {
   description = "SSH key name for Jenkins instance"
   type        = string
@@ -152,4 +135,40 @@ variable "failover_domain" {
   description = "Domain name for failover routing"
   type        = string
   default     = null
+}
+
+variable "aws_profile" {
+  description = "AWS profile to use for authentication"
+  type        = string
+  default     = ""
+}
+
+variable "create_database" {
+  description = "Whether to create a new database (set to false for DR environment to use snapshots)"
+  type        = bool
+  default     = true
+}
+
+variable "db_snapshot_identifier" {
+  description = "The identifier for the DB snapshot to restore from in DR environment"
+  type        = string
+  default     = ""
+}
+
+variable "additional_tags" {
+  description = "Additional tags to apply to all resources"
+  type        = map(string)
+  default     = {}
+}
+
+variable "disable_monitoring" {
+  description = "Disable monitoring in DR environment"
+  type        = bool
+  default     = false
+}
+
+variable "enable_dr_monitoring" {
+  description = "Enable monitoring in DR environment (if disable_monitoring is false)"
+  type        = bool
+  default     = false
 }

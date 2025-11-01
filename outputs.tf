@@ -59,11 +59,6 @@ output "launch_template_id" {
   value       = module.ec2.launch_template_id
 }
 
-output "codedeploy_app_name" {
-  description = "Name of the CodeDeploy application"
-  value       = module.ecs.codedeploy_app_name
-}
-
 output "infrastructure_alerts_topic_arn" {
   description = "ARN of the SNS topic for infrastructure alerts"
   value       = module.monitoring.infrastructure_alerts_topic_arn

@@ -1,5 +1,7 @@
-# ECS Cluster
+# ECS Cluster - only create if not in DR mode
 resource "aws_ecs_cluster" "cluster" {
+  count = var.is_dr ? 0 : 1
+  
   name = "${var.project}-${var.environment}-cluster"
 
   setting {
@@ -16,6 +18,8 @@ resource "aws_ecs_cluster" "cluster" {
 
 # CloudWatch Log Group for ECS
 resource "aws_cloudwatch_log_group" "ecs_logs" {
+  count = var.is_dr ? 0 : 1
+  
   name              = "/ecs/${var.project}-${var.environment}"
   retention_in_days = 30
 
@@ -26,8 +30,10 @@ resource "aws_cloudwatch_log_group" "ecs_logs" {
   }
 }
 
-# Application Load Balancer
+# Application Load Balancer - only create if not in DR mode
 resource "aws_lb" "alb" {
+  count = var.is_dr ? 0 : 1
+  
   name               = "${var.project}-${var.environment}-alb"
   internal           = false
   load_balancer_type = "application"
@@ -44,6 +50,8 @@ resource "aws_lb" "alb" {
 }
 
 resource "aws_lb_target_group" "target_group" {
+  count = var.is_dr ? 0 : 1
+  
   name        = "${var.project}-${var.environment}-tg"
   port        = 80
   protocol    = "HTTP"
@@ -52,14 +60,12 @@ resource "aws_lb_target_group" "target_group" {
 
   health_check {
     enabled             = true
-    interval            = 30
     path                = "/"
     port                = "traffic-port"
     healthy_threshold   = 3
     unhealthy_threshold = 3
     timeout             = 5
     protocol            = "HTTP"
-    matcher             = "200"
   }
 
   tags = {
@@ -69,25 +75,9 @@ resource "aws_lb_target_group" "target_group" {
   }
 }
 
-resource "aws_lb_listener" "http" {
-  load_balancer_arn = aws_lb.alb.arn
-  port              = 80
-  protocol          = "HTTP"
-
-  default_action {
-    type             = "forward"
-    target_group_arn = aws_lb_target_group.target_group.arn
-  }
-
-  tags = {
-    Name        = "${var.project}-${var.environment}-http-listener"
-    Environment = var.environment
-    Project     = var.project
-  }
-}
-
-# ECS Task Definition
 resource "aws_ecs_task_definition" "task_definition" {
+  count = var.is_dr ? 0 : 1
+
   family                   = "${var.project}-${var.environment}-task"
   network_mode             = "awsvpc"
   requires_compatibilities = ["FARGATE"]
@@ -111,7 +101,7 @@ resource "aws_ecs_task_definition" "task_definition" {
       logConfiguration = {
         logDriver = "awslogs"
         options = {
-          "awslogs-group"         = aws_cloudwatch_log_group.ecs_logs.name
+          "awslogs-group"         = aws_cloudwatch_log_group.ecs_logs[0].name
           "awslogs-region"        = data.aws_region.current.id
           "awslogs-stream-prefix" = "ecs"
         }
@@ -126,11 +116,13 @@ resource "aws_ecs_task_definition" "task_definition" {
   }
 }
 
-# ECS Service
+# ECS Service - only create if not in DR mode
 resource "aws_ecs_service" "service" {
+  count = var.is_dr ? 0 : 1
+  
   name            = "${var.project}-${var.environment}-service"
-  cluster         = aws_ecs_cluster.cluster.id
-  task_definition = aws_ecs_task_definition.task_definition.arn
+  cluster         = aws_ecs_cluster.cluster[0].id
+  task_definition = aws_ecs_task_definition.task_definition[0].arn
   desired_count   = 2
   launch_type     = "FARGATE"
 
@@ -140,13 +132,19 @@ resource "aws_ecs_service" "service" {
     assign_public_ip = false
   }
 
-  load_balancer {
-    target_group_arn = aws_lb_target_group.target_group.arn
-    container_name   = "${var.project}-${var.environment}-container"
-    container_port   = 80
+  dynamic "load_balancer" {
+    for_each = var.is_dr ? [] : [1]
+    content {
+      target_group_arn = aws_lb_target_group.target_group[0].arn
+      container_name   = "${var.project}-${var.environment}-container"
+      container_port   = 80
+    }
   }
 
-  depends_on = [aws_lb_listener.http]
+  depends_on = [
+    aws_lb_listener.http[0],
+    aws_ecs_task_definition.task_definition[0]
+  ]
 
   tags = {
     Name        = "${var.project}-${var.environment}-service"
@@ -155,9 +153,9 @@ resource "aws_ecs_service" "service" {
   }
 }
 
-# Jenkins for CI/CD with GitHub
+# Jenkins for CI/CD with GitHub - only create if not in DR mode
 resource "aws_instance" "jenkins" {
-  count = var.create_jenkins ? 1 : 0
+  count = (var.create_jenkins && !var.is_dr) ? 1 : 0
 
   ami                    = data.aws_ami.amazon_linux_2.id
   instance_type          = "t3.medium"

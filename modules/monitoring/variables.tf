@@ -1,3 +1,13 @@
+variable "project" {
+  description = "Project name for resource naming and tagging"
+  type        = string
+}
+
+variable "environment" {
+  description = "Environment (e.g., dev, staging, prod)"
+  type        = string
+}
+
 variable "vpc_id" {
   description = "ID of the VPC"
   type        = string
@@ -64,11 +74,6 @@ variable "grafana_admin_password" {
 
 variable "aws_region" {
   description = "AWS region"
-  type        = string
-}
-
-variable "environment" {
-  description = "Environment name"
   type        = string
 }
 

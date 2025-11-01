@@ -37,7 +37,6 @@ variable "alb_security_group" {
   description = "Security group ID for the ALB"
   type        = string
 }
-
 variable "ecs_security_group" {
   description = "Security group ID for the ECS tasks"
   type        = string
@@ -49,10 +48,15 @@ variable "container_port" {
   default     = 80
 }
 
+variable "is_dr" {
+  description = "Boolean flag to indicate if this is a disaster recovery environment"
+  type        = bool
+  default     = false
+}
+
 variable "domain_name" {
   description = "Domain name for the application"
   type        = string
-  default     = "example.com"
 }
 
 variable "create_dummy_cert" {
