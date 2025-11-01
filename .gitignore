@@ -35,3 +35,18 @@ override.tf.json
 # Ignore CLI configuration files
 .terraformrc
 terraform.rc
+
+# Ignore CodeMie and virtual assistants
+.codemie/
+.codemie/*
+
+
+# Ignore CodeMie and virtual assistants
+.codemie/
+.codemie/*
+
+
+# Ignore CodeMie and virtual assistants
+.codemie/
+.codemie/*
+
