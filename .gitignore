@@ -38,6 +38,8 @@ terraform.rc
 
 # Ignore CodeMie and virtual assistants
 .codemie/
-.codemie/*
+.codemie/**/*
+**/.codemie/
+**/.codemie/**/*
 
 
