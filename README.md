@@ -108,13 +108,32 @@ The infrastructure is organized into the following modules:
 
 This infrastructure implements numerous security best practices:
 
+### OWASP Security Module
+
+- **AWS WAF with OWASP Top 10 Rules**: Protection against web application vulnerabilities
+- **Security Headers**: OWASP-recommended HTTP security headers
+- **GuardDuty Integration**: Advanced threat detection
+- **AWS Config**: Continuous security compliance monitoring
+
+See [SECURITY.md](SECURITY.md) for comprehensive security documentation.
+
+### Security Scanning Tools
+
+- **Checkov**: Scans IaC for security vulnerabilities and compliance issues
+- **TFLint**: Validates Terraform code against security best practices
+- **Pre-commit Hooks**: Runs security checks before code is committed
+- **CI/CD Security Integration**: Automated security scanning in pipelines
+
+See [docs/SECURITY_SCANNING.md](docs/SECURITY_SCANNING.md) for usage instructions.
+
+### Additional Security Features
+
 - **Network Isolation**: All resources run in private subnets where possible
 - **Encrypted Data**: Encryption at rest and in transit for all sensitive data
 - **Least Privilege**: IAM roles with minimum required permissions
 - **Network Monitoring**: VPC flow logs capture all network activity
 - **Security Groups**: Restrictive inbound/outbound rules for all resources
 - **TLS Encryption**: HTTPS for all public-facing services
-- **Automated Scanning**: Integration with Checkov and TFLint
 - **Automated Patching**: Systems Manager Patch Manager for automatic security updates
 - **Instance Metadata Security**: IMDSv2 requirement enforced on all EC2 instances
 - **Immutable Infrastructure**: Updated AMIs instead of in-place patching
@@ -146,7 +165,9 @@ The integrated CI/CD pipeline enables:
 
 ## Next Steps
 
-For detailed setup and usage instructions, see [Usage-and-Applicaton-Guide.md](Usage-and-Applicaton-Guide.md).
+For detailed setup and usage instructions, see [Usage.md](Usage.md).
+
+For comprehensive security documentation, see [SECURITY.md](SECURITY.md).
 
 ## Patching and Update Strategy
 

@@ -193,19 +193,42 @@ Check Route 53 health check status
 Verify instance capacity in DR region
 Review CloudWatch Logs for failover Lambda function
 Security Best Practices
-Access Management
-Use SSM Session Manager instead of SSH for instance access
-Apply least privilege IAM policies
-Enable CloudTrail for all API actions
-Data Protection
-All EBS volumes are encrypted using AWS KMS
-RDS databases use encryption at rest
-All S3 buckets enforce encryption
-Network Security
-VPC security groups follow least privilege
-No direct internet access to private subnets
-NACLs provide additional network layer protection
-Compliance Monitoring
-AWS Config rules monitor compliance
-Security Hub provides security standards assessment
-GuardDuty monitors for threats
+
+### OWASP Security Implementation
+The project includes a dedicated security module that implements OWASP Top 10 protections:
+
+- **AWS WAF** with OWASP Top 10 rules that protect against common vulnerabilities
+- **Security Headers** configured according to OWASP recommendations
+- **Rate Limiting** to prevent abuse and DDoS attacks
+- **Geo-Blocking** for high-risk countries
+
+For detailed information about OWASP security implementation, see the [SECURITY.md](SECURITY.md) file.
+
+### Static Code Analysis Tools
+
+- **Checkov** scans infrastructure code for security vulnerabilities and compliance issues
+- **TFLint** validates Terraform code against AWS best practices and security standards
+- **Pre-commit hooks** run security checks locally before code is committed
+- **CI/CD integration** ensures all code is security-scanned before deployment
+
+See [docs/SECURITY_SCANNING.md](docs/SECURITY_SCANNING.md) for usage instructions.
+
+### Access Management
+- Use SSM Session Manager instead of SSH for instance access
+- Apply least privilege IAM policies
+- Enable CloudTrail for all API actions
+
+### Data Protection
+- All EBS volumes are encrypted using AWS KMS
+- RDS databases use encryption at rest
+- All S3 buckets enforce encryption
+
+### Network Security
+- VPC security groups follow least privilege
+- No direct internet access to private subnets
+- NACLs provide additional network layer protection
+
+### Compliance Monitoring
+- AWS Config rules monitor compliance
+- Security Hub provides security standards assessment
+- GuardDuty monitors for threats
