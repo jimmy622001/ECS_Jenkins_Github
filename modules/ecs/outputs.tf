@@ -28,3 +28,13 @@ output "https_listener_arn" {
   value       = var.create_dummy_cert ? aws_lb_listener.https[0].arn : null
 }
 
+output "alb_arn" {
+  description = "ARN of the Application Load Balancer"
+  value       = aws_lb.alb.arn
+}
+
+# Commented out until CodeDeploy app is implemented
+#output "codedeploy_app_name" {
+#  description = "Name of the CodeDeploy application"
+#  value       = aws_codedeploy_app.main.name
+#}
