@@ -28,8 +28,8 @@ resource "aws_launch_template" "ecs_launch_template" {
     content {
       market_type = "spot"
       spot_options {
-        max_price = var.spot_price
-        spot_instance_type = "persistent"
+        max_price                      = var.spot_price
+        spot_instance_type             = "persistent"
         instance_interruption_behavior = "terminate"
       }
     }
@@ -148,8 +148,8 @@ resource "aws_autoscaling_group" "ecs_asg" {
   dynamic "warm_pool" {
     for_each = var.is_pilot_light ? [1] : []
     content {
-      pool_state = "Stopped"
-      min_size = 1
+      pool_state                  = "Stopped"
+      min_size                    = 1
       max_group_prepared_capacity = 2
     }
   }
@@ -228,11 +228,11 @@ resource "random_string" "suffix" {
 
 # Maintenance Window for Patching
 resource "aws_ssm_maintenance_window" "patching_window" {
-  name              = "${var.project}-${var.environment}-patching-window"
-  schedule          = var.maintenance_window_schedule
-  duration          = 3
-  cutoff            = 1
-  schedule_timezone = "UTC"
+  name                       = "${var.project}-${var.environment}-patching-window"
+  schedule                   = var.maintenance_window_schedule
+  duration                   = 3
+  cutoff                     = 1
+  schedule_timezone          = "UTC"
   allow_unassociated_targets = true
 
   tags = {
@@ -246,12 +246,12 @@ resource "aws_ssm_maintenance_window" "patching_window" {
 resource "aws_ssm_maintenance_window_target" "target" {
   window_id     = aws_ssm_maintenance_window.patching_window.id
   resource_type = "INSTANCE"
-  
+
   targets {
     key    = "tag:Project"
     values = [var.project]
   }
-  
+
   targets {
     key    = "tag:Environment"
     values = [var.environment]
@@ -267,21 +267,21 @@ resource "aws_ssm_maintenance_window_task" "patching_task" {
   service_role_arn = var.ssm_service_role_arn
   max_concurrency  = "50%"
   max_errors       = "25%"
-  
+
   targets {
     key    = "WindowTargetIds"
     values = [aws_ssm_maintenance_window_target.target.id]
   }
-  
+
   task_invocation_parameters {
     run_command_parameters {
       timeout_seconds = 600
-      
+
       parameter {
         name   = "Operation"
         values = ["Install"]
       }
-      
+
       parameter {
         name   = "RebootOption"
         values = ["RebootIfNeeded"]
@@ -301,11 +301,11 @@ resource "aws_cloudwatch_metric_alarm" "asg_health" {
   statistic           = "Average"
   threshold           = var.min_size
   alarm_description   = "This alarm monitors ASG health for ${var.project}-${var.environment}"
-  
+
   dimensions = {
     AutoScalingGroupName = aws_autoscaling_group.ecs_asg.name
   }
-  
+
   alarm_actions = [var.sns_topic_arn]
   ok_actions    = [var.sns_topic_arn]
 }

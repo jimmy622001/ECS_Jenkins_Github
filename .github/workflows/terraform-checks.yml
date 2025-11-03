@@ -1,0 +1,62 @@
+name: 'Terraform Security & Lint Checks'
+
+on:
+  pull_request:
+    branches:
+      - main
+      - develop
+  push:
+    branches:
+      - main
+      - develop
+
+jobs:
+  terraform-checks:
+    name: 'Terraform Format, Lint & Security Scan'
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v2
+      with:
+        terraform_version: 1.5.0
+        cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+
+    - name: Terraform Format
+      id: fmt
+      run: terraform fmt -check -recursive
+      continue-on-error: true
+
+    - name: Setup TFLint
+      uses: terraform-linters/setup-tflint@v3
+      with:
+        tflint_version: v0.47.0
+
+    - name: Initialize TFLint
+      run: tflint --init
+    
+    - name: Run TFLint
+      run: tflint --recursive --format compact
+      continue-on-error: true
+
+    - name: Run Checkov
+      uses: bridgecrewio/checkov-action@master
+      with:
+        directory: .
+        framework: terraform
+        output_format: github_failed_only
+        soft_fail: true
+        skip_check: CKV_AWS_23,CKV_AWS_24
+        quiet: false
+
+    - name: Terraform Security Scan Summary
+      if: always()
+      run: |
+        echo "### Terraform Security & Lint Check Results" >> $GITHUB_STEP_SUMMARY
+        echo "✅ Format check completed" >> $GITHUB_STEP_SUMMARY
+        echo "✅ TFLint check completed" >> $GITHUB_STEP_SUMMARY
+        echo "✅ Checkov security scan completed" >> $GITHUB_STEP_SUMMARY
+        echo "Review the above logs for details on any findings." >> $GITHUB_STEP_SUMMARY

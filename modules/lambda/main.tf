@@ -243,7 +243,7 @@ resource "aws_lambda_function" "failover_lambda" {
   role          = aws_iam_role.lambda_role.arn
   handler       = "lambda_function.lambda_handler"
   runtime       = "python3.9"
-  timeout       = 900  # 15 minutes
+  timeout       = 900 # 15 minutes
   memory_size   = 128
 
   s3_bucket = aws_s3_bucket.lambda_code.id
@@ -258,7 +258,7 @@ resource "aws_lambda_function" "failover_lambda" {
       PRIMARY_REGION          = var.primary_region
       DR_REGION               = var.dr_region
       SNS_TOPIC_ARN           = var.sns_topic_arn
-      FAILOVER_MODE           = "test"  # Default mode
+      FAILOVER_MODE           = "test" # Default mode
     }
   }
 

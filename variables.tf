@@ -153,3 +153,28 @@ variable "failover_domain" {
   type        = string
   default     = null
 }
+
+# OWASP Security Variables
+variable "blocked_ip_addresses" {
+  description = "List of IP addresses to block"
+  type        = list(string)
+  default     = []
+}
+
+variable "max_request_size" {
+  description = "Maximum allowed request size in bytes"
+  type        = number
+  default     = 131072 # 128 KB
+}
+
+variable "request_limit" {
+  description = "Maximum number of requests allowed in 5-minute period from a single IP"
+  type        = number
+  default     = 1000
+}
+
+variable "enable_security_hub" {
+  description = "Whether to enable AWS Security Hub"
+  type        = bool
+  default     = false
+}

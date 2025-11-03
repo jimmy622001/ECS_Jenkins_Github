@@ -114,10 +114,36 @@ This infrastructure implements numerous security best practices:
 - **Network Monitoring**: VPC flow logs capture all network activity
 - **Security Groups**: Restrictive inbound/outbound rules for all resources
 - **TLS Encryption**: HTTPS for all public-facing services
-- **Automated Scanning**: Integration with Checkov and TFLint
+- **Automated Security Scanning**: Continuous security scanning with Checkov
+- **Terraform Linting**: Code quality enforcement with TFLint
+- **Pre-commit Hooks**: Automated checks before code commits
 - **Automated Patching**: Systems Manager Patch Manager for automatic security updates
 - **Instance Metadata Security**: IMDSv2 requirement enforced on all EC2 instances
 - **Immutable Infrastructure**: Updated AMIs instead of in-place patching
+- **OWASP Protection**: AWS WAF with OWASP Top 10 protections and security headers
+- **Threat Detection**: GuardDuty for continuous security monitoring
+- **Compliance Monitoring**: AWS Config for security configuration compliance
+- **Security Dashboard**: CloudWatch dashboard for security metrics visualization
+
+### OWASP Security Module
+
+The project includes a dedicated security module implementing OWASP (Open Web Application Security Project) best practices:
+
+- AWS WAF with rules protecting against OWASP Top 10 vulnerabilities
+- Advanced security headers configuration following OWASP recommendations
+- TLS 1.2+ enforcement with secure cipher suites
+- Rate limiting to prevent brute force and DDoS attacks
+- See [OWASP Security Documentation](docs/OWASP_SECURITY.md) for details
+
+### Security Scanning Tools
+
+The project incorporates industry-standard security and quality scanning tools:
+
+- **Checkov**: Static code analysis for infrastructure-as-code to detect misconfigurations and security issues
+- **TFLint**: Linting tool for Terraform to enforce best practices and catch errors early
+- **Pre-commit Hooks**: Automated checks that run before committing code changes
+- **CI/CD Integration**: Security scanning integrated into GitHub Actions and Jenkins pipelines
+- See [Security Scanning Documentation](docs/SECURITY_SCANNING.md) for details
 
 ## Monitoring Capabilities
 

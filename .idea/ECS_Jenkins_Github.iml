@@ -2,7 +2,18 @@
 <module type="JAVA_MODULE" version="4">
   <component name="NewModuleRootManager" inherit-compiler-output="true">
     <exclude-output />
-    <content url="file://$MODULE_DIR$" />
+    <content url="file://$MODULE_DIR$">
+      <excludeFolder url="file://$MODULE_DIR$/.codemie" />
+      <excludeFolder url="file://$MODULE_DIR$/.codemie/templates" />
+      <excludeFolder url="file://$MODULE_DIR$/.codemie/tmplates" />
+      <excludeFolder url="file://$MODULE_DIR$/.codemie/workflows" />
+      <excludeFolder url="file://$MODULE_DIR$/.terraform" />
+      <excludeFolder url="file://$MODULE_DIR$/environments/dev/.terraform" />
+      <excludeFolder url="file://$MODULE_DIR$/environments/dev/terraform.tfstate.d" />
+      <excludeFolder url="file://$MODULE_DIR$/environments/dr-pilot-light/.terraform" />
+      <excludeFolder url="file://$MODULE_DIR$/environments/prod/.terraform" />
+      <excludeFolder url="file://$MODULE_DIR$/terraform.tfstate.d" />
+    </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
   </component>

@@ -1,26 +1,27 @@
-variable "db_username" {
-  description = "Database username for dev environment"
+variable "project" {
+  description = "Name of the project"
   type        = string
-  sensitive   = true
 }
 
-variable "db_password" {
-  description = "Database password for dev environment"
+variable "environment" {
+  description = "Environment (e.g., dev, staging, prod)"
   type        = string
-  sensitive   = true
 }
 
-variable "grafana_admin_password" {
-  description = "Admin password for Grafana in dev environment"
+variable "alb_arn" {
+  description = "ARN of the Application Load Balancer to protect"
   type        = string
-  sensitive   = true
 }
 
-# OWASP Security Variables
+variable "aws_region" {
+  description = "AWS region where resources are deployed"
+  type        = string
+}
+
 variable "blocked_ip_addresses" {
   description = "List of IP addresses to block"
   type        = list(string)
-  default     = []
+  default     = [] # Empty by default, to be filled in by each environment
 }
 
 variable "max_request_size" {
@@ -39,4 +40,11 @@ variable "enable_security_hub" {
   description = "Whether to enable AWS Security Hub"
   type        = bool
   default     = false
+}
+
+# Optional: SSL Policy to enforce
+variable "ssl_policy" {
+  description = "SSL Policy to use for ALB HTTPS listeners"
+  type        = string
+  default     = "ELBSecurityPolicy-TLS-1-2-2017-01" # Minimum TLS 1.2
 }

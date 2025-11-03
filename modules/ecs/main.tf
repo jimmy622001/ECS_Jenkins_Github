@@ -189,7 +189,7 @@ resource "aws_instance" "jenkins" {
 resource "tls_private_key" "example" {
   count       = var.create_dummy_cert ? 1 : 0
   algorithm   = "RSA"
-  rsa_bits    = 4096  # Increased from 2048 for better security
+  rsa_bits    = 4096 # Increased from 2048 for better security
   ecdsa_curve = "P384"
 }
 
@@ -207,8 +207,8 @@ resource "tls_self_signed_cert" "example" {
   }
 
   # Reduced validity period for security
-  validity_period_hours = 24  # 1 day for testing
-  early_renewal_hours  = 6   # 6 hours before expiration
+  validity_period_hours = 24 # 1 day for testing
+  early_renewal_hours   = 6  # 6 hours before expiration
 
   # Allowed uses for the certificate
   allowed_uses = [
@@ -228,20 +228,20 @@ resource "tls_self_signed_cert" "example" {
 }
 
 resource "aws_acm_certificate" "cert" {
-  count                     = var.create_dummy_cert ? 1 : 0
-  private_key               = tls_private_key.example[0].private_key_pem
-  certificate_body          = tls_self_signed_cert.example[0].cert_pem
-  certificate_chain         = tls_self_signed_cert.example[0].cert_pem
-  early_renewal_duration    = "24h"  # 24 hours before expiration
-  key_algorithm             = "RSA_4096"  # Matches our 4096-bit RSA key
+  count                  = var.create_dummy_cert ? 1 : 0
+  private_key            = tls_private_key.example[0].private_key_pem
+  certificate_body       = tls_self_signed_cert.example[0].cert_pem
+  certificate_chain      = tls_self_signed_cert.example[0].cert_pem
+  early_renewal_duration = "24h"      # 24 hours before expiration
+  key_algorithm          = "RSA_4096" # Matches our 4096-bit RSA key
   tags = {
     Name        = "${var.project}-${var.environment}-cert"
     Environment = var.environment
     Project     = var.project
     ManagedBy   = "Terraform"
-    AutoRenew   = "false"  # Self-signed certs shouldn't be auto-renewed
+    AutoRenew   = "false" # Self-signed certs shouldn't be auto-renewed
   }
-  
+
   lifecycle {
     create_before_destroy = true
     ignore_changes = [
@@ -258,8 +258,9 @@ resource "aws_lb_listener" "https" {
   load_balancer_arn = aws_lb.alb.arn
   port              = 443
   protocol          = "HTTPS"
-  ssl_policy        = "ELBSecurityPolicy-2016-08"
-  certificate_arn   = aws_acm_certificate.cert[0].arn
+  # Use a more secure SSL policy that requires TLS 1.2 minimum (OWASP recommendation)
+  ssl_policy      = "ELBSecurityPolicy-TLS-1-2-2017-01"
+  certificate_arn = aws_acm_certificate.cert[0].arn
 
   default_action {
     type             = "forward"
@@ -267,9 +268,10 @@ resource "aws_lb_listener" "https" {
   }
 
   tags = {
-    Name        = "${var.project}-${var.environment}-https"
-    Environment = var.environment
-    Project     = var.project
+    Name               = "${var.project}-${var.environment}-https"
+    Environment        = var.environment
+    Project            = var.project
+    SecurityCompliance = "OWASP-TLS-1.2"
   }
 }
 
@@ -305,12 +307,13 @@ resource "aws_lb_listener" "http_redirect" {
 # Security headers policy
 resource "aws_cloudfront_response_headers_policy" "security_headers" {
   name    = "${var.project}-${var.environment}-security-headers"
-  comment = "Security headers policy for ${var.project}"
+  comment = "Security headers policy for ${var.project} - OWASP Compliant"
 
   security_headers_config {
     content_security_policy {
-      content_security_policy = "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https:; style-src 'self' 'unsafe-inline' https:; img-src 'self' data: https:; font-src 'self' https: data:;"
-      override               = true
+      # Enhanced CSP aligned with OWASP recommendations
+      content_security_policy = "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https:; style-src 'self' 'unsafe-inline' https:; img-src 'self' data: https:; font-src 'self' https: data:; connect-src 'self' https:; media-src 'self' https:; object-src 'none'; frame-src 'self' https:; worker-src 'self' blob:; manifest-src 'self'; base-uri 'self'; form-action 'self';"
+      override                = true
     }
 
     content_type_options {
@@ -319,18 +322,26 @@ resource "aws_cloudfront_response_headers_policy" "security_headers" {
 
     frame_options {
       frame_option = "DENY"
-      override    = true
+      override     = true
     }
 
     referrer_policy {
       referrer_policy = "strict-origin-when-cross-origin"
-      override       = true
+      override        = true
     }
 
     xss_protection {
       mode_block = true
       protection = true
-      override  = true
+      override   = true
+    }
+
+    # HSTS (HTTP Strict Transport Security)
+    strict_transport_security {
+      access_control_max_age_sec = 63072000 # 2 years
+      include_subdomains         = true
+      preload                    = true
+      override                   = true
     }
   }
 }

@@ -46,5 +46,5 @@ variable "sns_topic_arn" {
 variable "test_schedule" {
   description = "Schedule expression for automated failover tests"
   type        = string
-  default     = "cron(0 3 ? * SAT *)"  # 3 AM every Saturday
+  default     = "cron(0 3 ? * SAT *)" # 3 AM every Saturday
 }

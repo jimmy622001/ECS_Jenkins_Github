@@ -1,0 +1,87 @@
+# Security Scanning and Linting
+
+This project includes automated security scanning and linting as part of the CI/CD process to ensure code quality and security best practices are followed.
+
+## Tools Used
+
+### Checkov
+
+[Checkov](https://www.checkov.io/) is a static code analysis tool for infrastructure-as-code (IaC) that scans cloud infrastructure resources defined in Terraform, CloudFormation, Kubernetes, Serverless, and ARM templates for security and compliance issues.
+
+#### Usage
+
+- **In CI/CD pipeline**: Automatically runs on all pull requests and in Jenkins pipelines
+- **Locally**: Run the following command to scan your code:
+  ```bash
+  # Install Checkov
+  pip install checkov
+  
+  # Run scan
+  checkov -d . --config-file .checkov.yaml
+  ```
+
+#### Custom Rules
+
+We've configured Checkov to skip certain checks that aren't applicable to our environment. These are defined in the `.checkov.yaml` file.
+
+### TFLint
+
+[TFLint](https://github.com/terraform-linters/tflint) is a Terraform linter focused on checking for possible errors, best practices, and naming conventions.
+
+#### Usage
+
+- **In CI/CD pipeline**: Automatically runs on all pull requests and in Jenkins pipelines
+- **Locally**: Run the following commands:
+  ```bash
+  # Install TFLint
+  curl -s https://raw.githubusercontent.com/terraform-linters/tflint/master/install_linux.sh | bash
+  
+  # Initialize plugins
+  tflint --init
+  
+  # Run lint
+  tflint --config=.tflint.hcl --recursive
+  ```
+
+### Pre-commit Hooks
+
+We've configured [pre-commit](https://pre-commit.com/) hooks to run these checks automatically before each commit.
+
+#### Installation
+
+```bash
+# Install pre-commit
+pip install pre-commit
+
+# Install the git hook scripts
+pre-commit install
+```
+
+## CI/CD Integration
+
+### GitHub Actions
+
+Security scans run automatically on all pull requests to the main and develop branches. Check the `.github/workflows/terraform-checks.yml` file for details.
+
+### Jenkins
+
+The Jenkins pipeline includes stages for:
+- Running Checkov security scans
+- Running TFLint for linting
+- Checking Terraform formatting
+
+Results are displayed in the Jenkins UI as test results and are available in the reports directory.
+
+## Handling Security Findings
+
+1. Review all security findings from Checkov
+2. Address critical and high-severity issues before merging code
+3. For false positives, update the `.checkov.yaml` file with appropriate skip directives
+4. Document any accepted risks and mitigations
+
+## Best Practices
+
+1. Run security scans locally before pushing changes
+2. Keep security scanning tools updated in the CI/CD pipeline
+3. Periodically review skipped checks to ensure they're still valid
+4. Review and update security policies as cloud provider security features evolve

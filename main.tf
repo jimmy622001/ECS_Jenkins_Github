@@ -79,24 +79,24 @@ module "cicd" {
 module "ec2" {
   source = "./modules/ec2"
 
-  project              = var.project_name
-  environment          = var.environment
-  instance_type        = var.ec2_instance_type
-  security_group_id    = module.network.ecs_security_group
-  key_name             = var.key_name
-  instance_profile_name = module.iam.ec2_instance_profile
-  ecs_cluster_name     = module.ecs.cluster_name
-  root_volume_size     = var.root_volume_size
-  subnet_ids           = module.network.private_subnet_ids
-  min_size             = var.min_instance_count
-  max_size             = var.max_instance_count
-  desired_capacity     = var.desired_instance_count
-  patch_schedule       = var.patch_schedule
+  project                     = var.project_name
+  environment                 = var.environment
+  instance_type               = var.ec2_instance_type
+  security_group_id           = module.network.ecs_security_group
+  key_name                    = var.key_name
+  instance_profile_name       = module.iam.ec2_instance_profile
+  ecs_cluster_name            = module.ecs.cluster_name
+  root_volume_size            = var.root_volume_size
+  subnet_ids                  = module.network.private_subnet_ids
+  min_size                    = var.min_instance_count
+  max_size                    = var.max_instance_count
+  desired_capacity            = var.desired_instance_count
+  patch_schedule              = var.patch_schedule
   maintenance_window_schedule = var.maintenance_window_schedule
-  ssm_service_role_arn = module.iam.ssm_service_role_arn
-  sns_topic_arn        = module.monitoring.infrastructure_alerts_topic_arn
-  additional_tags       = {
-    ManagedBy = "Terraform"
+  ssm_service_role_arn        = module.iam.ssm_service_role_arn
+  sns_topic_arn               = module.monitoring.infrastructure_alerts_topic_arn
+  additional_tags = {
+    ManagedBy  = "Terraform"
     AutoUpdate = "true"
   }
 }
@@ -112,7 +112,26 @@ module "monitoring" {
   ecs_cluster_id         = module.ecs.cluster_id
   aws_region             = var.aws_region
   environment            = var.environment
+  project                = var.project_name
   grafana_admin_password = var.grafana_admin_password
   domain_name            = var.domain_name
   https_listener_arn     = module.ecs.https_listener_arn
+}
+
+# OWASP Security Module
+module "security" {
+  source = "./modules/security"
+
+  project     = var.project_name
+  environment = var.environment
+  aws_region  = var.aws_region
+  alb_arn     = module.ecs.alb_arn
+
+  # IP addresses to block - can be customized per environment
+  blocked_ip_addresses = var.blocked_ip_addresses
+
+  # Rate limiting settings
+  max_request_size    = var.max_request_size
+  request_limit       = var.request_limit
+  enable_security_hub = var.enable_security_hub
 }

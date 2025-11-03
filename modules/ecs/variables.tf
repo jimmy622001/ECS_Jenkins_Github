@@ -88,5 +88,5 @@ variable "service_desired_count" {
 variable "codedeploy_role_arn" {
   description = "ARN of the CodeDeploy service role"
   type        = string
-  default     = ""  # This will be created by the IAM module
+  default     = "" # This will be created by the IAM module
 }

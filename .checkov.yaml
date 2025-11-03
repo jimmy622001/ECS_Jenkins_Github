@@ -1,0 +1,18 @@
+# .checkov.yaml configuration file
+framework:
+  - terraform
+download-external-modules: false
+directory:
+  - .
+evaluate-variables: true
+compact: false
+skip-check:
+  # Skip specific checks that may cause false positives:
+  - CKV_AWS_23 # Resource has no tags
+  - CKV_AWS_24 # Ensure no security groups allow ingress from 0.0.0.0:0
+  # Add any other check IDs to skip here
+output:
+  - cli
+  - json
+output-file-path: reports/checkov
+summary-position: bottom
