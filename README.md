@@ -142,6 +142,7 @@ The project incorporates industry-standard security and quality scanning tools:
 - **Checkov**: Static code analysis for infrastructure-as-code to detect misconfigurations and security issues
 - **TFLint**: Linting tool for Terraform to enforce best practices and catch errors early
 - **Pre-commit Hooks**: Automated checks that run before committing code changes
+- **SonarCloud**: Continuous code quality inspection for bugs, vulnerabilities, code smells, and security hotspots
 - **CI/CD Integration**: Security scanning integrated into GitHub Actions and Jenkins pipelines
 - See [Security Scanning Documentation](docs/SECURITY_SCANNING.md) for details
 

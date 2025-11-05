@@ -4,6 +4,25 @@ This project includes automated security scanning and linting as part of the CI/
 
 ## Tools Used
 
+### SonarCloud
+
+[SonarCloud](https://sonarcloud.io/) is a cloud-based code quality and security service. It performs automatic reviews with static code analysis to detect bugs, code smells, and security vulnerabilities in your codebase.
+
+#### Features
+
+- **Code Quality Analysis**: Identifies code quality issues, bugs, and vulnerabilities
+- **Security Hotspots**: Highlights security-sensitive code that requires manual review
+- **Pull Request Decoration**: Adds comments directly to pull requests
+- **Quality Gates**: Enforces quality standards that code must meet before deployment
+
+#### Usage
+
+- **In CI/CD pipeline**: Automatically runs on all pull requests and in Jenkins pipelines
+- **Viewing Results**: Access results in SonarCloud dashboard or directly in PRs
+- **Configuration**: Settings are defined in `sonar-project.properties` file
+
+For complete details on the SonarCloud integration, see [SONARCLOUD_INTEGRATION.md](SONARCLOUD_INTEGRATION.md).
+
 ### Checkov
 
 [Checkov](https://www.checkov.io/) is a static code analysis tool for infrastructure-as-code (IaC) that scans cloud infrastructure resources defined in Terraform, CloudFormation, Kubernetes, Serverless, and ARM templates for security and compliance issues.
@@ -61,7 +80,9 @@ pre-commit install
 
 ### GitHub Actions
 
-Security scans run automatically on all pull requests to the main and develop branches. Check the `.github/workflows/terraform-checks.yml` file for details.
+Security scans run automatically on all pull requests to the main and develop branches. Check the following workflow files for details:
+- `.github/workflows/terraform-checks.yml` - Terraform checks
+- `.github/workflows/sonarcloud.yml` - SonarCloud analysis
 
 ### Jenkins
 

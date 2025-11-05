@@ -62,6 +62,25 @@ pipeline {
             }
         }
         
+        stage('SonarCloud Analysis') {
+            steps {
+                withSonarQubeEnv('SonarCloud') {
+                    // Using sonar-scanner with the properties file
+                    // The configuration is in sonar-project.properties
+                    sh 'sonar-scanner'
+                }
+            }
+        }
+        
+        stage('SonarCloud Quality Gate') {
+            steps {
+                timeout(time: 30, unit: 'MINUTES') {
+                    // Wait for the quality gate response from SonarCloud
+                    waitForQualityGate abortPipeline: true
+                }
+            }
+        }
+        
         stage('Terraform Init') {
             steps {
                 dir("environments/${params.ENVIRONMENT}") {
