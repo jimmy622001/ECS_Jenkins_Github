@@ -1,4 +1,4 @@
-# ECS with Jenkins CI/CD and Monitoring Infrastructure
+# ECS with Jenkins CI/CD and Monitoring Infrastructure POC
 
 ## Overview
 
