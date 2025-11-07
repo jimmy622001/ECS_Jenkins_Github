@@ -26,8 +26,8 @@ module "ecs_jenkins_github" {
   spot_price                  = var.spot_price
   maintenance_window_schedule = var.maintenance_window_schedule
   patch_schedule              = var.patch_schedule
-
-
+  root_volume_size            = var.root_volume_size
+  is_pilot_light              = var.is_pilot_light
 
   # OWASP Security settings
   blocked_ip_addresses = var.blocked_ip_addresses

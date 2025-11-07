@@ -9,6 +9,7 @@ variable "db_password" {
   type        = string
   sensitive   = true
 }
+
 variable "db_name" {
   description = "Database name for dev environment"
   type        = string
@@ -18,6 +19,12 @@ variable "grafana_admin_password" {
   description = "Admin password for Grafana in dev environment"
   type        = string
   sensitive   = true
+}
+
+variable "grafana_admin_user" {
+  description = "Admin username for Grafana in dev environment"
+  type        = string
+  default     = "admin"
 }
 
 # OWASP Security Variables
@@ -44,62 +51,78 @@ variable "enable_security_hub" {
   type        = bool
   default     = false
 }
+
 variable "environment" {
   description = "Environment name"
   type        = string
 }
+
 variable "domain_name" {
   description = "Domain name for the application"
   type        = string
 }
+
 variable "ec2_instance_type" {
   description = "EC2 instance type for ECS container instances"
   type        = string
 }
+
 variable "min_instance_count" {
   description = "Minimum number of EC2 instances in the Auto Scaling Group"
   type        = number
 }
+
 variable "max_instance_count" {
   description = "Maximum number of EC2 instances in the Auto Scaling Group"
   type        = number
 }
+
 variable "desired_instance_count" {
   description = "Desired number of EC2 instances in the Auto Scaling Group"
   type        = number
 }
+
 variable "root_volume_size" {
   description = "Root volume size in GB for EC2 instances"
   type        = number
+  default     = 30
 }
+
 variable "patch_schedule" {
   description = "Cron expression for patching schedule"
   type        = string
 }
+
 variable "availability_zones" {
   description = "List of availability zones"
   type        = list(string)
 }
+
 variable "maintenance_window_schedule" {
   description = "Maintenance window for Auto Scaling Group"
   type        = string
 }
+
 variable "vpc_cidr" {
   description = "VPC CIDR block"
   type        = string
 }
+
 variable "project_name" {
   description = "Project name"
   type        = string
 }
+
 variable "key_name" {
   description = "SSH key name"
   type        = string
 }
+
 variable "database_subnet_cidrs" {
   description = "CIDR blocks for the database subnets"
   type        = list(string)
 }
+
 variable "jenkins_instance_type" {
   description = "EC2 instance type for Jenkins"
   type        = string
@@ -108,6 +131,12 @@ variable "jenkins_instance_type" {
 variable "aws_region" {
   description = "AWS Region"
   type        = string
+}
+
+variable "aws_profile" {
+  description = "The AWS profile to use for deployment"
+  type        = string
+  default     = "default"
 }
 
 variable "public_subnet_cidrs" {
@@ -141,27 +170,17 @@ variable "spot_price" {
   description = "Spot instance maximum price"
   type        = string
 }
+
 variable "jenkins_version" {
   description = "Version of Jenkins to deploy"
   type        = string
-}
-
-variable "aws_profile" {
-  description = "The AWS profile to use for deployment"
-  type        = string
-  default     = "default"
+  default     = "2.346.1"
 }
 
 variable "is_pilot_light" {
   description = "Whether the environment is in pilot light mode"
   type        = bool
   default     = false
-}
-
-variable "grafana_admin_user" {
-  description = "Admin username for Grafana"
-  type        = string
-  default     = "admin"
 }
 
 variable "trusted_ips" {
@@ -173,6 +192,7 @@ variable "trusted_ips" {
 variable "container_image" {
   description = "Docker image for the application container"
   type        = string
+  default     = "nginx:latest"
 }
 
 variable "disable_monitoring" {
@@ -186,4 +206,3 @@ variable "enable_dr_monitoring" {
   type        = bool
   default     = false
 }
-

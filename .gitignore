@@ -13,8 +13,12 @@ crash.*.log
 # password, private keys, and other secrets. These should not be part of version
 # control as they are data points which are potentially sensitive and subject
 # to change depending on the environment.
-*.tfvars
-*.tfvars.json
+# Note: We're excluding this rule because we need environment-specific tfvars in the repo
+# *.tfvars
+# *.tfvars.json
+# Instead, exclude specific sensitive tfvars
+*secrets.tfvars
+*secrets.tfvars.json
 
 # Ignore override files as they are usually used to override resources locally and so
 # are not checked in
@@ -30,11 +34,29 @@ override.tf.json
 # !example_override.tf
 
 # Include tfplan files to ignore the plan output of command: terraform plan -out=tfplan
-# example: *tfplan*
+*tfplan*
+*.tfplan
 
 # Ignore CLI configuration files
 .terraformrc
 terraform.rc
+
+# IDE specific files
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+*.swp
+*~
+.*.swp
+.DS_Store
+
+# Lock files
+.terraform.lock.hcl
+
+# Log files
+*.log
 
 # Ignore CodeMie and virtual assistants
 .codemie/

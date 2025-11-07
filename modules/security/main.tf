@@ -1,6 +1,20 @@
 # OWASP Security Module for AWS Infrastructure
 # This module implements AWS WAF with OWASP Top 10 protections
 
+# Required providers - Placed at the top for better linting results
+terraform {
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = ">= 5.0.0"
+    }
+    random = {
+      source  = "hashicorp/random"
+      version = ">= 3.0.0"
+    }
+  }
+}
+
 # WAF IP Set for known bad IPs (can be regularly updated)
 resource "aws_wafv2_ip_set" "known_bad_ips" {
   name               = "${var.project}-${var.environment}-bad-ips"
@@ -326,6 +340,13 @@ resource "aws_config_configuration_recorder_status" "recorder_status" {
   depends_on = [aws_config_delivery_channel.channel]
 }
 
+# Random string for unique bucket names
+resource "random_string" "bucket_suffix" {
+  length  = 8
+  special = false
+  upper   = false
+}
+
 # Config S3 bucket
 resource "aws_s3_bucket" "config_bucket" {
   bucket        = "${var.project}-${var.environment}-config-${random_string.bucket_suffix.result}"
@@ -546,13 +567,6 @@ resource "aws_cloudwatch_event_target" "sns_target" {
 # Security Hub (Optional) - Uncomment if you want to enable Security Hub
 resource "aws_securityhub_account" "security_hub" {
   count = var.enable_security_hub ? 1 : 0
-}
-
-# Random string for unique bucket names
-resource "random_string" "bucket_suffix" {
-  length  = 8
-  special = false
-  upper   = false
 }
 
 # WAF Logging to S3
