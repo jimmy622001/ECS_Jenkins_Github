@@ -170,3 +170,20 @@ variable "trusted_ips" {
   default     = []
 }
 
+variable "container_image" {
+  description = "Docker image for the application container"
+  type        = string
+}
+
+variable "disable_monitoring" {
+  description = "Whether to disable monitoring for the environment"
+  type        = bool
+  default     = false
+}
+
+variable "enable_dr_monitoring" {
+  description = "Whether to enable disaster recovery monitoring"
+  type        = bool
+  default     = false
+}
+
