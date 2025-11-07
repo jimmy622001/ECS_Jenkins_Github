@@ -98,7 +98,7 @@ For production, you should enable stricter security:
 ```hcl
 module "ecs_jenkins_github" {
   # Other settings...
-  
+
   # OWASP Security settings
   blocked_ip_addresses = var.blocked_ip_addresses
   max_request_size     = 65536  # 64 KB - stricter than dev

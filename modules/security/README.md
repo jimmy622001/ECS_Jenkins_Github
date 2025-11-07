@@ -42,15 +42,15 @@ Enhanced security headers based on OWASP recommendations:
 ```hcl
 module "security" {
   source = "./modules/security"
-  
+
   project     = var.project_name
   environment = var.environment
   aws_region  = var.aws_region
   alb_arn     = module.ecs.alb_arn
-  
+
   # IP addresses to block - can be customized per environment
   blocked_ip_addresses = var.blocked_ip_addresses
-  
+
   # Rate limiting settings
   max_request_size    = var.max_request_size
   request_limit       = var.request_limit

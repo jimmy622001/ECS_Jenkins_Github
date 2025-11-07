@@ -28,7 +28,7 @@ Internet ───┤              Application Load Balancer        │
 │ (CI/CD)          │    │ (Monitoring)  │    │ (Dashboards) │
 │                  │    │               │    │              │
 └─────────┬────────┘    └───────────────┘    └──────────────┘
-│         
+│
 ▼         ┌─────────────────────┐
 ┌──────────────────────┐   │ AWS Systems Manager │
 │   Amazon ECR         │   │ (Patch Management) │
@@ -144,7 +144,12 @@ The project incorporates industry-standard security and quality scanning tools:
 - **Pre-commit Hooks**: Automated checks that run before committing code changes
 - **SonarCloud**: Continuous code quality inspection for bugs, vulnerabilities, code smells, and security hotspots
 - **CI/CD Integration**: Security scanning integrated into GitHub Actions and Jenkins pipelines
+- **Terratest**: Infrastructure testing that deploys and validates actual resources
+  - Automated validation of Terraform code without creating real infrastructure
+  - Full infrastructure testing that provisions real resources for comprehensive validation
+  - Integrated into GitHub Actions workflow for automated validation on PRs
 - See [Security Scanning Documentation](docs/SECURITY_SCANNING.md) for details
+- See [Testing Documentation](docs/TESTING.md) for comprehensive testing strategy
 
 ## Monitoring Capabilities
 
@@ -173,7 +178,14 @@ The integrated CI/CD pipeline enables:
 
 ## Next Steps
 
-For detailed setup and usage instructions, see [Usage-and-Applicaton-Guide.md](Usage-and-Applicaton-Guide.md).
+For detailed setup and usage instructions, see [Usage.md](Usage.md).
+
+### Additional Documentation
+
+- [Environment Deployment Guide](docs/ENVIRONMENT_DEPLOYMENT.md) - How to deploy and manage environments
+- [Automated Patching Guide](docs/AUTOMATED_PATCHING.md) - Automated patching setup and customization
+- [Testing Usage Guide](docs/TESTING_USAGE.md) - How to use pre-commit hooks, Terratest, and other testing tools
+- [Testing Strategy](docs/TESTING.md) - Comprehensive testing strategy for the infrastructure
 
 ## Patching and Update Strategy
 

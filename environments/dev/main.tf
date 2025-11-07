@@ -1,29 +1,33 @@
 module "ecs_jenkins_github" {
   source = "../../"
 
-  aws_region             = "us-east-1"
-  vpc_cidr               = "10.0.0.0/16"
-  public_subnet_cidrs    = ["10.0.1.0/24", "10.0.2.0/24"]
-  private_subnet_cidrs   = ["10.0.3.0/24", "10.0.4.0/24"]
-  database_subnet_cidrs  = ["10.0.5.0/24", "10.0.6.0/24"]
-  availability_zones     = ["us-east-1a", "us-east-1b"]
-  environment            = "dev"
-  project_name           = "ecs-jenkins"
-  container_port         = 8080
-  key_name               = "dev-key"
-  jenkins_instance_type  = "t3.small"
-  jenkins_role_name      = "jenkins-role-dev"
-  db_username            = var.db_username
-  db_password            = var.db_password
-  db_name                = "devappdb"
-  grafana_admin_password = var.grafana_admin_password
-  domain_name            = "dev.example.com"
-  ec2_instance_type      = "t3.small"
-  min_instance_count     = 1
-  max_instance_count     = 3
-  desired_instance_count = 2
-  use_spot_instances     = true
-  spot_price             = "0.04"
+  aws_region                  = var.aws_region
+  vpc_cidr                    = var.vpc_cidr
+  public_subnet_cidrs         = var.public_subnet_cidrs
+  private_subnet_cidrs        = var.private_subnet_cidrs
+  database_subnet_cidrs       = var.database_subnet_cidrs
+  availability_zones          = var.availability_zones
+  environment                 = var.environment
+  domain_name                 = var.domain_name
+  project_name                = var.project_name
+  container_port              = var.container_port
+  key_name                    = var.key_name
+  jenkins_instance_type       = var.jenkins_instance_type
+  jenkins_role_name           = var.jenkins_role_name
+  db_username                 = var.db_username
+  db_password                 = var.db_password
+  db_name                     = var.db_name
+  grafana_admin_password      = var.grafana_admin_password
+  ec2_instance_type           = var.ec2_instance_type
+  min_instance_count          = var.min_instance_count
+  max_instance_count          = var.max_instance_count
+  desired_instance_count      = var.desired_instance_count
+  use_spot_instances          = var.use_spot_instances
+  spot_price                  = var.spot_price
+  maintenance_window_schedule = var.maintenance_window_schedule
+  patch_schedule              = var.patch_schedule
+
+
 
   # OWASP Security settings
   blocked_ip_addresses = var.blocked_ip_addresses

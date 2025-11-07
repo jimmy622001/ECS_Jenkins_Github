@@ -1,36 +1,36 @@
 pipeline {
     agent any
-    
+
     tools {
         terraform 'terraform'
     }
-    
+
     environment {
         // Define your environment variables here
         AWS_REGION = 'us-east-1'
     }
-    
+
     parameters {
         choice(
             name: 'ENVIRONMENT',
             choices: ['dev', 'staging', 'prod'],
             description: 'Select the environment to deploy'
         )
-        
+
         booleanParam(
             name: 'APPLY',
             defaultValue: false,
             description: 'Apply the Terraform changes'
         )
     }
-    
+
     stages {
         stage('Checkout') {
             steps {
                 checkout scm
             }
         }
-        
+
         stage('Security Scan - Checkov') {
             steps {
                 sh 'pip install checkov'
@@ -42,7 +42,7 @@ pipeline {
                 }
             }
         }
-        
+
         stage('Lint - TFLint') {
             steps {
                 sh 'curl -s https://raw.githubusercontent.com/terraform-linters/tflint/master/install_linux.sh | bash'
@@ -55,13 +55,13 @@ pipeline {
                 }
             }
         }
-        
+
         stage('Terraform Format') {
             steps {
                 sh 'terraform fmt -check -recursive'
             }
         }
-        
+
         stage('SonarCloud Analysis') {
             steps {
                 withSonarQubeEnv('SonarCloud') {
@@ -71,7 +71,7 @@ pipeline {
                 }
             }
         }
-        
+
         stage('SonarCloud Quality Gate') {
             steps {
                 timeout(time: 30, unit: 'MINUTES') {
@@ -80,7 +80,7 @@ pipeline {
                 }
             }
         }
-        
+
         stage('Terraform Init') {
             steps {
                 dir("environments/${params.ENVIRONMENT}") {
@@ -88,7 +88,7 @@ pipeline {
                 }
             }
         }
-        
+
         stage('Terraform Validate') {
             steps {
                 dir("environments/${params.ENVIRONMENT}") {
@@ -96,7 +96,7 @@ pipeline {
                 }
             }
         }
-        
+
         stage('Terraform Plan') {
             steps {
                 dir("environments/${params.ENVIRONMENT}") {
@@ -104,7 +104,7 @@ pipeline {
                 }
             }
         }
-        
+
         stage('Terraform Apply') {
             when {
                 expression { params.APPLY == true }
@@ -116,7 +116,7 @@ pipeline {
             }
         }
     }
-    
+
     post {
         always {
             cleanWs()

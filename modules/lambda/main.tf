@@ -71,10 +71,10 @@ def lambda_handler(event, context):
     dr_region = os.environ['DR_REGION']
     sns_topic_arn = os.environ['SNS_TOPIC_ARN']
     failover_mode = os.environ.get('FAILOVER_MODE', 'test') # test, activate_dr, restore
-    
+
     # Timestamp for logging
     timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-    
+
     try:
         if failover_mode == 'test':
             # Failover test mode - temporary test
@@ -83,28 +83,28 @@ def lambda_handler(event, context):
                 f"Failover Testing Started - {timestamp}",
                 f"Initiating failover test from {primary_region} to {dr_region}"
             )
-            
+
             # Disable primary health check to simulate failure
             toggle_health_check(primary_health_check_id, 'disable')
-            
+
             # Scale up DR environment
             scale_asg(dr_asg_name, dr_region, 2, 6, 4)
-            
+
             # Wait for 15 minutes to observe
             time.sleep(900)
-            
+
             # Restore primary
             toggle_health_check(primary_health_check_id, 'enable')
-            
+
             # Scale back DR environment
             scale_asg(dr_asg_name, dr_region, 1, 4, 1)
-            
+
             notify_sns(
                 sns_topic_arn,
                 f"Failover Testing Completed - {timestamp}",
                 f"Failover test completed and primary region {primary_region} restored"
             )
-            
+
         elif failover_mode == 'activate_dr':
             # Emergency DR activation
             notify_sns(
@@ -112,13 +112,13 @@ def lambda_handler(event, context):
                 f"DR ACTIVATION - {timestamp}",
                 f"Activating DR environment in {dr_region} due to emergency failover request"
             )
-            
+
             # Disable primary health check
             toggle_health_check(primary_health_check_id, 'disable')
-            
+
             # Scale up DR environment
             scale_asg(dr_asg_name, dr_region, 2, 6, 4)
-            
+
         elif failover_mode == 'restore':
             # Restore primary environment
             notify_sns(
@@ -126,13 +126,13 @@ def lambda_handler(event, context):
                 f"Primary Restoration - {timestamp}",
                 f"Restoring primary environment in {primary_region}"
             )
-            
+
             # Re-enable primary health check
             toggle_health_check(primary_health_check_id, 'enable')
-            
+
             # Scale down DR environment
             scale_asg(dr_asg_name, dr_region, 1, 4, 1)
-            
+
         return {
             'statusCode': 200,
             'body': json.dumps(f'Failover operation completed: {failover_mode}')

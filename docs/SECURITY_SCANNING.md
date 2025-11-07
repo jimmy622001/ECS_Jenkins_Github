@@ -34,7 +34,7 @@ For complete details on the SonarCloud integration, see [SONARCLOUD_INTEGRATION.
   ```bash
   # Install Checkov
   pip install checkov
-  
+
   # Run scan
   checkov -d . --config-file .checkov.yaml
   ```
@@ -54,10 +54,10 @@ We've configured Checkov to skip certain checks that aren't applicable to our en
   ```bash
   # Install TFLint
   curl -s https://raw.githubusercontent.com/terraform-linters/tflint/master/install_linux.sh | bash
-  
+
   # Initialize plugins
   tflint --init
-  
+
   # Run lint
   tflint --config=.tflint.hcl --recursive
   ```
