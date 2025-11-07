@@ -1,24 +1,32 @@
-name: 'Terraform Quality Checks'
+name: 'Terraform Quality & Sync'
 
 on:
-  pull_request:
-    branches:
-      - main
-      - develop
   push:
     branches:
       - main
-      - develop
+      - dev
+    paths:
+      - 'environments/**'
+      - 'modules/**'
+      - '*.tf'
+      - '.github/workflows/terraform-checks.yml'
+  pull_request:
+    branches:
+      - main
+      - dev
   workflow_dispatch:  # Allow manual triggering
 
 jobs:
   terraform-checks:
-    name: 'Terraform Format, Lint, Doc & Security Scan'
+    name: 'Terraform Quality Checks'
     runs-on: ubuntu-latest
-
+    environment: ${{ github.ref == 'refs/heads/main' && 'prod' || 'dev' }}
+    
     steps:
     - name: Checkout
       uses: actions/checkout@v3
+      with:
+        fetch-depth: 1
 
     - name: Setup Terraform
       uses: hashicorp/setup-terraform@v2
@@ -41,27 +49,37 @@ jobs:
         chmod +x terraform-docs
         sudo mv terraform-docs /usr/local/bin/
 
-    - name: Run Format Check
+    - name: Terraform Format
       id: fmt
-      run: make fmt
+      run: |
+        terraform fmt -check -recursive -diff
+        echo "status=$?" >> $GITHUB_OUTPUT
       continue-on-error: true
 
-    - name: Run Linting Check
-      id: lint
-      run: make lint
-      continue-on-error: true
+    - name: Terraform Init
+      run: |
+        ENV=$(echo ${{ github.ref }} | sed 's/refs\/heads\///')
+        cd environments/$ENV
+        terraform init -backend=false
 
-    - name: Run Documentation Generation 
-      id: docs
-      run: make docs
-      continue-on-error: true
-
-    - name: Run Terraform Validate
+    - name: Terraform Validate
       id: validate
-      run: make validate
+      run: |
+        ENV=$(echo ${{ github.ref }} | sed 's/refs\/heads\///')
+        cd environments/$ENV
+        terraform validate
+        echo "status=$?" >> $GITHUB_OUTPUT
       continue-on-error: true
 
-    - name: Run Checkov Security Scan
+    - name: TFLint
+      id: tflint
+      run: |
+        cd environments/${{ github.ref == 'refs/heads/main' && 'prod' || 'dev' }}
+        tflint --config=../../.tflint.hcl
+        echo "status=$?" >> $GITHUB_OUTPUT
+      continue-on-error: true
+
+    - name: Terraform Security Scan
       id: security
       uses: bridgecrewio/checkov-action@master
       with:
@@ -69,25 +87,94 @@ jobs:
         framework: terraform
         output_format: github_failed_only
         soft_fail: true
-        skip_check: CKV_AWS_23,CKV_AWS_24
+        skip_check: CKV_AWS_23,CKV_AWS_24  # Skip checks that might be false positives
         quiet: false
 
-    - name: Commit documentation updates
-      if: github.event_name == 'push'
+    - name: Update Documentation
+      id: docs
+      run: |
+        terraform-docs markdown table --output-file README.md --output-mode inject .
+        git diff --quiet || (git add README.md && git commit -m "docs: update terraform documentation")
+        echo "status=$?" >> $GITHUB_OUTPUT
+      continue-on-error: true
+
+    - name: Push Documentation Updates
+      if: github.event_name == 'push' && steps.docs.outputs.status == 0
       run: |
         git config --global user.name 'GitHub Actions'
         git config --global user.email 'github-actions@github.com'
-        git add modules/*/README.md
-        git diff --quiet && git diff --staged --quiet || git commit -m "chore: update terraform docs" || echo "No changes to commit"
-        git push || echo "No changes to push"
+        git push
 
     - name: Quality Check Summary
       if: always()
       run: |
         echo "### Terraform Quality Check Results" >> $GITHUB_STEP_SUMMARY
-        echo "✅ Format check completed" >> $GITHUB_STEP_SUMMARY
-        echo "✅ TFLint check completed" >> $GITHUB_STEP_SUMMARY
-        echo "✅ Documentation generated" >> $GITHUB_STEP_SUMMARY
-        echo "✅ Terraform validate completed" >> $GITHUB_STEP_SUMMARY
-        echo "✅ Checkov security scan completed" >> $GITHUB_STEP_SUMMARY
-        echo "Review the above logs for details on any findings." >> $GITHUB_STEP_SUMMARY
+        echo "| Check | Status |" >> $GITHUB_STEP_SUMMARY
+        echo "|-------|--------|" >> $GITHUB_STEP_SUMMARY
+        
+        if [ "${{ steps.fmt.outputs.status }}" = "0" ]; then
+          echo "| Format | ✅ Passed |" >> $GITHUB_STEP_SUMMARY
+        else
+          echo "| Format | ❌ Failed |" >> $GITHUB_STEP_SUMMARY
+        fi
+        
+        if [ "${{ steps.validate.outputs.status }}" = "0" ]; then
+          echo "| Validate | ✅ Passed |" >> $GITHUB_STEP_SUMMARY
+        else
+          echo "| Validate | ❌ Failed |" >> $GITHUB_STEP_SUMMARY
+        fi
+        
+        if [ "${{ steps.tflint.outputs.status }}" = "0" ]; then
+          echo "| Lint | ✅ Passed |" >> $GITHUB_STEP_SUMMARY
+        else
+          echo "| Lint | ❌ Failed |" >> $GITHUB_STEP_SUMMARY
+        fi
+        
+        echo "| Security Scan | ✅ Completed |" >> $GITHUB_STEP_SUMMARY
+        echo "| Documentation | ${{ steps.docs.outputs.status == '0' && '✅ Updated' || 'ℹ️ No changes' }} |" >> $GITHUB_STEP_SUMMARY
+        echo "\nReview the logs for detailed results." >> $GITHUB_STEP_SUMMARY
+
+  sync-branches:
+    name: 'Sync Environment Branches'
+    needs: terraform-checks
+    if: github.event_name == 'push' && needs.terraform-checks.result == 'success'
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout with token
+        uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.GH_PAT }}
+          fetch-depth: 0
+
+      - name: Configure Git
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+
+      - name: Get current branch
+        id: branch
+        run: |
+          CURRENT_BRANCH=${GITHUB_REF#refs/heads/}
+          echo "CURRENT_BRANCH=$CURRENT_BRANCH" >> $GITHUB_ENV
+          echo "branch=$CURRENT_BRANCH" >> $GITHUB_OUTPUT
+
+      - name: Sync main to dr
+        if: env.CURRENT_BRANCH == 'main'
+        run: |
+          echo "Syncing main to dr branch"
+          git checkout dr
+          git merge --no-ff main --strategy-option theirs -m "[AUTO] Sync from main"
+          git push origin dr
+
+      - name: Sync dev branch
+        if: env.CURRENT_BRANCH == 'dev'
+        run: |
+          echo "Updating dev branch"
+          git push origin dev
+
+      - name: Sync dr branch (no-op, as it's read-only)
+        if: env.CURRENT_BRANCH == 'dr'
+        run: |
+          echo "DR branch is read-only. Changes should only come from main branch sync."
+          exit 1
