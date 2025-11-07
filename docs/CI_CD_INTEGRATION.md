@@ -139,4 +139,4 @@ external-checks-dir:
 1. **Address issues early**: Fix security and linting issues at the PR stage
 2. **Don't ignore warnings**: Even "minor" issues can indicate bigger problems
 3. **Update configurations**: Periodically review and update security rules
-4. **Enable pre-commit hooks**: Catch issues before they reach CI/CD
+4. **Use local quality checks**: Run the provided scripts or Make targets to catch issues before they reach CI/CD

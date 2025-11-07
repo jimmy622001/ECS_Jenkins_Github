@@ -3,70 +3,63 @@
 This guide explains how to use the testing tools included in the ECS Jenkins GitHub project.
 
 ## Table of Contents
-1. [Pre-commit Hooks](#pre-commit-hooks)
+1. [Quality Control Tools](#quality-control-tools)
 2. [Terratest](#terratest)
 3. [Checkov Security Scanning](#checkov-security-scanning)
 4. [TFLint](#tflint)
 5. [Setting up Your Development Environment](#setting-up-your-development-environment)
 
-## Pre-commit Hooks
+## Quality Control Tools
 
-Pre-commit hooks help catch issues before committing code. They run automatically when you commit changes if set up correctly.
+Our project includes several tools to ensure code quality, security, and best practices. These can be run through simple commands.
 
-### Setting Up Pre-commit
+### Using the Makefile
 
-1. **Install pre-commit**:
-   ```bash
-   pip install pre-commit
-   ```
-
-2. **Install the git hooks**:
-   ```bash
-   pre-commit install
-   ```
-
-3. **Run manually on all files**:
-   ```bash
-   pre-commit run --all-files
-   ```
-
-### Available Pre-commit Hooks
-
-- **terraform_fmt**: Formats Terraform code
-- **terraform_docs**: Updates documentation in README.md files
-- **terraform_tflint**: Lints Terraform code
-- **terraform_checkov**: Runs security checks on Terraform code
-- **terratest**: Runs Terratest validation tests
-- **go-fmt**: Formats Go code
-- **go-vet**: Analyzes Go code for suspicious constructs
-- **go-lint**: Lints Go code
-
-### Skipping Pre-commit Hooks
-
-If you need to bypass pre-commit hooks temporarily:
+We provide a comprehensive Makefile to run quality checks:
 
 ```bash
-git commit -m "Your message" --no-verify
+# Format Terraform code
+make fmt
+
+# Run TFLint for Terraform linting
+make lint
+
+# Update module documentation
+make docs
+
+# Run Checkov security scans
+make security
+
+# Validate Terraform configurations
+make validate
+
+# Run all checks at once
+make check-all
 ```
 
-However, CI checks will still run these checks and may fail the build.
+### Using PowerShell Scripts (Windows)
 
-### Disabling Specific Hooks
+For Windows users, we provide convenient scripts:
 
-To disable specific hooks, create a `.pre-commit-config.yaml` file in your home directory with:
+```powershell
+# Run all checks at once
+.\check-terraform.cmd
 
-```yaml
-repos:
-- repo: local
-  hooks:
-  - id: skip-terraform-checkov
-    name: Skip Terraform Checkov
-    entry: echo "Skipping Terraform Checkov"
-    language: system
-    files: \.tf$
-    stages: [commit]
-    # This will override the hook with the same name from the project configuration
+# Install required tools
+.\install-tools.cmd
 ```
+
+### Available Quality Checks
+
+- **terraform fmt**: Formats Terraform code for consistent style
+- **terraform-docs**: Updates documentation in README.md files
+- **tflint**: Lints Terraform code to catch errors and enforce best practices
+- **checkov**: Runs security checks on Terraform code
+- **terraform validate**: Verifies that the configuration is syntactically valid
+
+### Integration with CI/CD
+
+All these checks are automatically run in GitHub Actions when you submit a pull request or push to the main branch.
 
 ## Terratest
 
@@ -130,8 +123,8 @@ Checkov is a static code analysis tool for infrastructure as code that detects s
 ### Running Checkov
 
 ```bash
-# Using pre-commit
-pre-commit run terraform_checkov --all-files
+# Using make command
+make security
 
 # Direct command
 checkov -d . --config-file .checkov.yaml
@@ -153,8 +146,8 @@ TFLint is a Terraform linter focused on identifying potential errors and enforci
 ### Running TFLint
 
 ```bash
-# Using pre-commit
-pre-commit run terraform_tflint --all-files
+# Using make command
+make lint
 
 # Direct command
 tflint --config=.tflint.hcl
@@ -175,8 +168,10 @@ To ensure all testing tools work properly, set up your development environment w
    # OR
    brew install go  # macOS with Homebrew
    
-   # Install pre-commit
-   pip install pre-commit
+   # Install Make and other build tools
+   choco install make -y  # Windows with Chocolatey
+   # OR
+   brew install make  # macOS with Homebrew
    
    # Install Terraform
    choco install terraform -y  # Windows
@@ -191,7 +186,7 @@ To ensure all testing tools work properly, set up your development environment w
    ```bash
    git clone https://github.com/your-org/ECS_Jenkins_Github.git
    cd ECS_Jenkins_Github
-   pre-commit install
+   # Nothing to install here anymore
    cd test/terratest
    go mod tidy
    ```
@@ -205,7 +200,7 @@ To ensure all testing tools work properly, set up your development environment w
 4. **Validate Setup**:
    ```bash
    make terratest-validate
-   pre-commit run --all-files
+   make check-all
    ```
 
 ### CI/CD Integration

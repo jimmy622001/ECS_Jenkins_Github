@@ -108,8 +108,8 @@ Our testing strategy is integrated into the CI/CD pipeline using GitHub Actions:
    - Checkov for security scanning
    - Terratest for infrastructure validation
 
-2. **Pre-commit Hooks**:
-   - Local checks before committing code
+2. **Local Quality Checks**:
+   - Development workflow checks via Makefile or scripts
    - Ensures code quality before pushing
 
 ## Adding New Tests

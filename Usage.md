@@ -3,7 +3,7 @@
 > **Important**: For detailed guides on specific topics, please refer to:
 > - [Environment Deployment Guide](docs/ENVIRONMENT_DEPLOYMENT.md) - How to deploy and manage environments
 > - [Automated Patching Guide](docs/AUTOMATED_PATCHING.md) - Automated patching setup and customization
-> - [Testing Usage Guide](docs/TESTING_USAGE.md) - How to use pre-commit hooks, Terratest, and other testing tools
+> - [Testing Usage Guide](docs/TESTING_USAGE.md) - How to use quality checking tools, Terratest, and other testing tools
 
 This guide provides instructions for deploying, managing, and maintaining the ECS Jenkins GitHub infrastructure.
 

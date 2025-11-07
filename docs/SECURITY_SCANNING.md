@@ -62,18 +62,29 @@ We've configured Checkov to skip certain checks that aren't applicable to our en
   tflint --config=.tflint.hcl --recursive
   ```
 
-### Pre-commit Hooks
+### Local Quality Checks
 
-We've configured [pre-commit](https://pre-commit.com/) hooks to run these checks automatically before each commit.
+We provide scripts and Make targets to run these checks locally before pushing changes.
 
-#### Installation
+#### Windows Usage
+
+```cmd
+# Install required tools
+install-tools.cmd
+
+# Run all checks
+check-terraform.cmd
+```
+
+#### Linux/Mac Usage
 
 ```bash
-# Install pre-commit
-pip install pre-commit
+# Run all checks
+make check-all
 
-# Install the git hook scripts
-pre-commit install
+# Or run specific checks
+make security
+make lint
 ```
 
 ## CI/CD Integration

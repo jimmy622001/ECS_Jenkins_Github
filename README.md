@@ -116,7 +116,7 @@ This infrastructure implements numerous security best practices:
 - **TLS Encryption**: HTTPS for all public-facing services
 - **Automated Security Scanning**: Continuous security scanning with Checkov
 - **Terraform Linting**: Code quality enforcement with TFLint
-- **Pre-commit Hooks**: Automated checks before code commits
+- **Automated Code Checks**: Quality checks integrated with the development workflow
 - **Automated Patching**: Systems Manager Patch Manager for automatic security updates
 - **Instance Metadata Security**: IMDSv2 requirement enforced on all EC2 instances
 - **Immutable Infrastructure**: Updated AMIs instead of in-place patching
@@ -135,19 +135,39 @@ The project includes a dedicated security module implementing OWASP (Open Web Ap
 - Rate limiting to prevent brute force and DDoS attacks
 - See [OWASP Security Documentation](docs/OWASP_SECURITY.md) for details
 
-### Security Scanning Tools
+### Developer Workflow & Quality Tools
 
-The project incorporates industry-standard security and quality scanning tools:
+The project provides a streamlined developer workflow with built-in quality checks:
 
+#### Installation
+- For Windows users: Simply run `install-tools.cmd` to automatically install required tools
+- For Linux/Mac users: Standard tool installation via package managers
+
+#### Local Quality Checks
+- Run `check-terraform.cmd` (Windows) or `make check-all` (Linux/Mac) to verify your changes before committing
+
+#### Automated Controls
+- **GitHub Actions**: CI/CD pipeline performs comprehensive checks on PRs and commits
+- **Terraform Format**: Enforces consistent code style
+- **TFLint**: Linting tool to enforce best practices and catch errors early
+- **Terraform Docs**: Automated documentation generation for modules
+- **Terraform Validate**: Confirms configurations are syntactically valid and internally consistent
 - **Checkov**: Static code analysis for infrastructure-as-code to detect misconfigurations and security issues
-- **TFLint**: Linting tool for Terraform to enforce best practices and catch errors early
-- **Pre-commit Hooks**: Automated checks that run before committing code changes
+
+#### Available Make Targets
+```
+make fmt        # Format Terraform code
+make lint       # Run TFLint for Terraform linting
+make docs       # Update module documentation
+make security   # Run Checkov security scans
+make validate   # Validate Terraform configurations
+make check-all  # Run all checks at once
+```
+
+#### Additional Quality Tools
 - **SonarCloud**: Continuous code quality inspection for bugs, vulnerabilities, code smells, and security hotspots
-- **CI/CD Integration**: Security scanning integrated into GitHub Actions and Jenkins pipelines
-- **Terratest**: Infrastructure testing that deploys and validates actual resources
-  - Automated validation of Terraform code without creating real infrastructure
-  - Full infrastructure testing that provisions real resources for comprehensive validation
-  - Integrated into GitHub Actions workflow for automated validation on PRs
+- **GitHub Actions**: Security scanning integrated into CI/CD pipelines
+
 - See [Security Scanning Documentation](docs/SECURITY_SCANNING.md) for details
 - See [Testing Documentation](docs/TESTING.md) for comprehensive testing strategy
 
@@ -184,7 +204,7 @@ For detailed setup and usage instructions, see [Usage.md](Usage.md).
 
 - [Environment Deployment Guide](docs/ENVIRONMENT_DEPLOYMENT.md) - How to deploy and manage environments
 - [Automated Patching Guide](docs/AUTOMATED_PATCHING.md) - Automated patching setup and customization
-- [Testing Usage Guide](docs/TESTING_USAGE.md) - How to use pre-commit hooks, Terratest, and other testing tools
+- [Testing Usage Guide](docs/TESTING_USAGE.md) - How to use the quality checking tools and testing frameworks
 - [Testing Strategy](docs/TESTING.md) - Comprehensive testing strategy for the infrastructure
 
 ## Patching and Update Strategy

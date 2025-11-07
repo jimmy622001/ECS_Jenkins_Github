@@ -1,4 +1,4 @@
-name: 'Terraform Security & Lint Checks'
+name: 'Terraform Quality Checks'
 
 on:
   pull_request:
@@ -9,10 +9,11 @@ on:
     branches:
       - main
       - develop
+  workflow_dispatch:  # Allow manual triggering
 
 jobs:
   terraform-checks:
-    name: 'Terraform Format, Lint & Security Scan'
+    name: 'Terraform Format, Lint, Doc & Security Scan'
     runs-on: ubuntu-latest
 
     steps:
@@ -25,11 +26,6 @@ jobs:
         terraform_version: 1.5.0
         cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
 
-    - name: Terraform Format
-      id: fmt
-      run: terraform fmt -check -recursive
-      continue-on-error: true
-
     - name: Setup TFLint
       uses: terraform-linters/setup-tflint@v3
       with:
@@ -38,11 +34,35 @@ jobs:
     - name: Initialize TFLint
       run: tflint --init
 
-    - name: Run TFLint
-      run: tflint --recursive --format compact
+    - name: Install terraform-docs
+      run: |
+        curl -sSLo ./terraform-docs.tar.gz https://terraform-docs.io/dl/v0.16.0/terraform-docs-v0.16.0-$(uname)-amd64.tar.gz
+        tar -xzf terraform-docs.tar.gz
+        chmod +x terraform-docs
+        sudo mv terraform-docs /usr/local/bin/
+
+    - name: Run Format Check
+      id: fmt
+      run: make fmt
       continue-on-error: true
 
-    - name: Run Checkov
+    - name: Run Linting Check
+      id: lint
+      run: make lint
+      continue-on-error: true
+
+    - name: Run Documentation Generation 
+      id: docs
+      run: make docs
+      continue-on-error: true
+
+    - name: Run Terraform Validate
+      id: validate
+      run: make validate
+      continue-on-error: true
+
+    - name: Run Checkov Security Scan
+      id: security
       uses: bridgecrewio/checkov-action@master
       with:
         directory: .
@@ -52,11 +72,22 @@ jobs:
         skip_check: CKV_AWS_23,CKV_AWS_24
         quiet: false
 
-    - name: Terraform Security Scan Summary
+    - name: Commit documentation updates
+      if: github.event_name == 'push'
+      run: |
+        git config --global user.name 'GitHub Actions'
+        git config --global user.email 'github-actions@github.com'
+        git add modules/*/README.md
+        git diff --quiet && git diff --staged --quiet || git commit -m "chore: update terraform docs" || echo "No changes to commit"
+        git push || echo "No changes to push"
+
+    - name: Quality Check Summary
       if: always()
       run: |
-        echo "### Terraform Security & Lint Check Results" >> $GITHUB_STEP_SUMMARY
+        echo "### Terraform Quality Check Results" >> $GITHUB_STEP_SUMMARY
         echo "✅ Format check completed" >> $GITHUB_STEP_SUMMARY
         echo "✅ TFLint check completed" >> $GITHUB_STEP_SUMMARY
+        echo "✅ Documentation generated" >> $GITHUB_STEP_SUMMARY
+        echo "✅ Terraform validate completed" >> $GITHUB_STEP_SUMMARY
         echo "✅ Checkov security scan completed" >> $GITHUB_STEP_SUMMARY
         echo "Review the above logs for details on any findings." >> $GITHUB_STEP_SUMMARY

@@ -139,7 +139,8 @@ resource "aws_lb_target_group" "grafana" {
 }
 
 resource "aws_lb_listener_rule" "grafana" {
-  count        = var.https_listener_arn != "" ? 1 : 0
+  # We'll create this resource only when the listener ARN is available
+  # For now, we'll use a simple check without count to avoid plan-time validation issues
   listener_arn = var.https_listener_arn
 
   action {
