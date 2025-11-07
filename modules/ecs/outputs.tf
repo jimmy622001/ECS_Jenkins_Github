@@ -30,7 +30,7 @@ output "https_listener_arn" {
 
 output "alb_arn" {
   description = "ARN of the Application Load Balancer"
-  value       = aws_lb.alb.arn
+  value       = var.is_dr ? null : aws_lb.alb.arn
 }
 
 # Commented out until CodeDeploy app is implemented
