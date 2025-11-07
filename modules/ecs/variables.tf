@@ -8,6 +8,12 @@ variable "environment" {
   type        = string
 }
 
+variable "is_dr" {
+  description = "Whether this is a DR environment"
+  type        = bool
+  default     = false
+}
+
 variable "vpc_id" {
   description = "VPC ID where resources will be created"
   type        = string
