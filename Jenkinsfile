@@ -42,7 +42,7 @@ pipeline {
                 }
             }
         }
-
+        
         stage('Lint - TFLint') {
             steps {
                 sh 'curl -s https://raw.githubusercontent.com/terraform-linters/tflint/master/install_linux.sh | bash'
@@ -53,6 +53,12 @@ pipeline {
                 always {
                     junit skipPublishingChecks: true, testResults: 'reports/tflint-report.xml'
                 }
+            }
+        }
+        
+        stage('Terraform Tests - Validation') {
+            steps {
+                sh 'cd test/terratest && go test -v -run TestTerraformValidate'
             }
         }
 

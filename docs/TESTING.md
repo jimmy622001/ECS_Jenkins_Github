@@ -100,7 +100,7 @@ tflint --config=.tflint.hcl
 
 ## Continuous Integration
 
-Our testing strategy is integrated into the CI/CD pipeline using GitHub Actions:
+Our testing strategy is integrated into the CI/CD pipeline using Jenkins:
 
 1. **Pull Request Checks**:
    - Terraform format and validation

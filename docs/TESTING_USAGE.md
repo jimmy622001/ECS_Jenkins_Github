@@ -59,7 +59,7 @@ For Windows users, we provide convenient scripts:
 
 ### Integration with CI/CD
 
-All these checks are automatically run in GitHub Actions when you submit a pull request or push to the main branch.
+All these checks are automatically run in Jenkins when you submit a pull request or push to the main branch.
 
 ## Terratest
 
@@ -205,7 +205,7 @@ To ensure all testing tools work properly, set up your development environment w
 
 ### CI/CD Integration
 
-Tests automatically run in GitHub Actions on:
+Tests automatically run in Jenkins on:
 - Pull requests to main branch (validation tests only)
 - Push to main branch (all tests)
-- Manual trigger from Actions tab
+- Manual trigger via Jenkins pipeline
