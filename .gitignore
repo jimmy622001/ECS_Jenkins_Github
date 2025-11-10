@@ -13,12 +13,9 @@ crash.*.log
 # password, private keys, and other secrets. These should not be part of version
 # control as they are data points which are potentially sensitive and subject
 # to change depending on the environment.
-# Note: We're excluding this rule because we need environment-specific tfvars in the repo
-# *.tfvars
-# *.tfvars.json
-# Instead, exclude specific sensitive tfvars
-*secrets.tfvars
-*secrets.tfvars.json
+*.tfvars
+*.tfvars.json
+
 
 # Ignore override files as they are usually used to override resources locally and so
 # are not checked in

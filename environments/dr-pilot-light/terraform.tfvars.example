@@ -1,0 +1,3 @@
+db_username           = "your_dr_db_username"
+db_password           = "CHANGE_ME"
+grafana_admin_password = "CHANGE_ME"

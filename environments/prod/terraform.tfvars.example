@@ -15,7 +15,7 @@ environment = "prod"
 
 # Database Configuration
 db_username = "proddbadmin"
-db_password = "ProdStrongPasswordHere456!"
+db_password = "CHANGE_ME"
 db_name     = "prodappdb"
 
 # Application Configuration
@@ -30,7 +30,7 @@ jenkins_role_name     = "jenkins-ecs-role-prod"
 
 # Security - Restricted to specific IP ranges for production
 trusted_ips            = ["10.0.0.0/8", "192.168.0.0/16"] # Restrict to corporate IPs
-grafana_admin_password = "StrongProdGrafanaPassword123!"
+grafana_admin_password = "CHANGE_ME"
 grafana_admin_user     = "prodadmin"
 domain_name            = "prod.example.com"
 
