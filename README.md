@@ -1,10 +1,10 @@
-# ECS with Jenkins CI/CD and Monitoring Infrastructure POC
+# ECS with Jenkins CI/CD and Monitoring Infrastructure
 
 ## Overview
 
 This Terraform project deploys a complete AWS infrastructure including:
 - VPC with public/private subnets and dedicated database subnet
-- ECS Cluster using Fargate with blue/green deployment capability
+- ECS Cluster using EC2 instances with blue/green deployment capability
 - CI/CD pipeline with Jenkins and GitHub integration on self-healing EC2 instances
 - RDS database in a private subnet
 - Prometheus and Grafana monitoring solution
@@ -54,6 +54,10 @@ Internet ───┤              Application Load Balancer        │
 │ (Private Subnet)                        │
 └─────────────────────────────────────────┘
 
+The infrastructure is designed with a modular approach allowing for independent deployment of components. This enables:
+- Infrastructure changes without impacting applications
+- Separate CI/CD processes for infrastructure and applications
+- Environment-specific configurations (prod, dev, DR)
 
 ## Module Structure
 
@@ -77,7 +81,7 @@ The infrastructure is organized into the following modules:
 ### 3. ECS Module
 - **Purpose**: Runs containerized applications
 - **Components**:
-    - Fargate cluster configuration
+    - Cluster configuration (ec2 instances)
     - Task definitions and services with blue/green deployment capability
     - Load balancer and auto scaling
     - CodeDeploy integration for zero-downtime deployments
@@ -104,10 +108,21 @@ The infrastructure is organized into the following modules:
     - Grafana for visualization
     - Alerting configuration
 
-## Security Features
+### 7. Security Module
+- **Purpose**: Implements OWASP and AWS security best practices
+- **Components**:
+    - WAF configuration with OWASP rules
+    - Security headers and TLS configuration
+    - GuardDuty and AWS Config integration
 
-This infrastructure implements numerous security best practices:
+## Getting Started
 
+### Prerequisites
+- AWS CLI configured with appropriate permissions
+- Terraform v1.0+ installed
+- AWS account with appropriate permissions
+
+### Security Features
 - **Network Isolation**: All resources run in private subnets where possible
 - **Encrypted Data**: Encryption at rest and in transit for all sensitive data
 - **Least Privilege**: IAM roles with minimum required permissions
@@ -125,15 +140,15 @@ This infrastructure implements numerous security best practices:
 - **Compliance Monitoring**: AWS Config for security configuration compliance
 - **Security Dashboard**: CloudWatch dashboard for security metrics visualization
 
-### OWASP Security Module
+### Deployment
 
-The project includes a dedicated security module implementing OWASP (Open Web Application Security Project) best practices:
+Each environment has its own deployment scripts and configurations:
 
-- AWS WAF with rules protecting against OWASP Top 10 vulnerabilities
-- Advanced security headers configuration following OWASP recommendations
-- TLS 1.2+ enforcement with secure cipher suites
-- Rate limiting to prevent brute force and DDoS attacks
-- See [OWASP Security Documentation](docs/OWASP_SECURITY.md) for details
+1. **Initialize Environment**:
+   ```bash
+   cd environments/<env>   # where <env> is dev, prod, or dr-pilot-light
+   terraform init
+   ```
 
 ### Developer Workflow & Quality Tools
 
@@ -170,6 +185,26 @@ make check-all  # Run all checks at once
 
 - See [Security Scanning Documentation](docs/SECURITY_SCANNING.md) for details
 - See [Testing Documentation](docs/TESTING.md) for comprehensive testing strategy
+
+### Deploy Infrastructure Components
+Each component can be deployed independently using the provided scripts:
+
+For Windows:
+```batch
+deploy_infrastructure.bat [network|iam|ecs|database|cicd|monitoring|security|all]
+```
+
+For Linux/macOS:
+```bash
+./deploy_infrastructure.sh [network|iam|ecs|database|cicd|monitoring|security|all]
+```
+
+### Set Up Secrets
+```bash
+./setup_secrets.sh   # On Linux/macOS
+# OR
+setup_secrets.bat    # On Windows
+```
 
 ## Monitoring Capabilities
 
@@ -230,9 +265,9 @@ This infrastructure implements a comprehensive strategy for maintaining up-to-da
 - CloudWatch metrics for patch compliance
 - Health check integration with deployment processes
 
-## Multi-Environment Architecture
+## Environment Configuration
 
-This project supports multiple environments with specialized configurations:
+The project supports multiple environments with specialized configurations:
 
 ### Development Environment
 - Optimized for cost efficiency with spot instances
@@ -244,28 +279,34 @@ This project supports multiple environments with specialized configurations:
 - Enhanced scaling parameters for production workloads
 - Stricter security controls and monitoring
 
-## Disaster Recovery Strategy
-
-The infrastructure includes a comprehensive DR strategy:
-
-### Pilot Light in Secondary Region
-- Minimal running infrastructure in a secondary AWS region (us-west-2)
+### DR Pilot Light Environment
+- Minimal running infrastructure in a secondary AWS region
 - Uses spot instances for cost efficiency during normal operations
 - Auto scaling capabilities to rapidly expand during failover events
-- Warm pool of stopped instances for faster recovery
 
-### Automated Failover Testing
-- Scheduled Lambda function for regular DR testing
-- Route 53 health checks for automatic traffic routing
-- Blue/Green deployment capability across regions
-- SNS notifications for failover events and status updates
+## Secrets Management
 
-### Cross-Region Data Replication
-- Database snapshots replicated to DR region
-- Automated synchronization of critical configuration data
-- State tracking for replication health and consistency
+This project uses AWS Secrets Manager for handling sensitive information:
 
-### Multi-Region Coordination
-- Route 53 for DNS-based failover between regions
-- CloudWatch for cross-region monitoring
-- Centralized logging for comprehensive visibility
+1. No sensitive data is stored in the Terraform code
+2. All secrets are referenced from AWS Secrets Manager
+3. Environment-specific secrets are separated by path
+
+## GitHub Workflow
+
+The project uses GitHub for source control with the following branch strategy:
+- `main`: Production-ready code
+- `dev`: Development environment code
+- `feature/*`: Feature branches
+- `hotfix/*`: Emergency fixes
+
+CI/CD pipelines are configured for automatic testing and deployment.
+
+## Additional Documentation
+
+For more detailed documentation, see:
+- [Modular Deployment Guide](docs/MODULAR_DEPLOYMENT.md)
+- [GitHub Branch Strategy](docs/GITHUB_BRANCH_STRATEGY.md)
+- [Security Implementation](docs/SECURITY_IMPLEMENTATION.md)
+- [Disaster Recovery Plan](docs/DISASTER_RECOVERY.md)
+- [CI/CD Pipeline](docs/CI_CD_PIPELINE.md)

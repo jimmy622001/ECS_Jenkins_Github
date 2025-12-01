@@ -1,0 +1,21 @@
+# Terraform state files
+*.tfstate
+*.tfstate.*
+tfplan*
+
+# Terraform directory
+.terraform/
+.terraform.lock.hcl
+
+# Secret files
+*secrets*.tf
+*secrets*.json
+*secret*.json
+*credentials*.json
+*credential*.json
+
+# Log files
+*.log
+
+# Backup files
+*.backup
