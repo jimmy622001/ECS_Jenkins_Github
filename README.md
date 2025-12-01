@@ -1,10 +1,10 @@
-# ECS with Jenkins CI/CD and Monitoring Infrastructure POC
+# ECS with Jenkins CI/CD and Monitoring Infrastructure
 
 ## Overview
 
 This Terraform project deploys a complete AWS infrastructure including:
 - VPC with public/private subnets and dedicated database subnet
-- ECS Cluster using Fargate with blue/green deployment capability
+- ECS Cluster using EC2 instances with blue/green deployment capability
 - CI/CD pipeline with Jenkins and GitHub integration on self-healing EC2 instances
 - RDS database in a private subnet
 - Prometheus and Grafana monitoring solution
@@ -12,48 +12,10 @@ This Terraform project deploys a complete AWS infrastructure including:
 
 ## Project Architecture
 
-### Infrastructure Diagram
-                              ┌─────────────────┐
-                              │   GitHub Repo   │
-                              └────────┬────────┘
-                                       │
-                                       ▼
-            ┌───────────────────────────────────────────────┐
-Internet ───┤              Application Load Balancer        │
-└─┬─────────────────────┬──────────────────┬────┘
-│                     │                  │
-┌─────────▼────────┐    ┌──────▼────────┐    ┌────▼─────────┐
-│                  │    │               │    │              │
-│ Jenkins EC2 ASG  │    │ Prometheus    │    │ Grafana      │
-│ (CI/CD)          │    │ (Monitoring)  │    │ (Dashboards) │
-│                  │    │               │    │              │
-└─────────┬────────┘    └───────────────┘    └──────────────┘
-│         
-▼         ┌─────────────────────┐
-┌──────────────────────┐   │ AWS Systems Manager │
-│   Amazon ECR         │   │ (Patch Management) │
-│   (Container Registry)│   └─────────────────────┘
-└──────────┬───────────┘
-│         ┌─────────────────┐
-│         │  CodeDeploy    │
-│         │ (Blue/Green)   │
-│         └────────┬────────┘
-│                  │
-┌──────────────────▼─────────────────────┐
-│ ECS Cluster (Fargate)                  │
-│                                        │
-│ ┌─────────────┐     ┌─────────────┐    │
-│ │ Service 1   │     │ Service 2   │    │
-│ │ (Container) │     │ (Container) │    │
-│ └─────┬───────┘     └──────┬──────┘    │
-└─────────┼──────────────────┼───────────┘
-          │                  │
-          ▼                  ▼
-┌─────────────────────────────────────────┐
-│ Amazon RDS Database                     │
-│ (Private Subnet)                        │
-└─────────────────────────────────────────┘
-
+The infrastructure is designed with a modular approach allowing for independent deployment of components. This enables:
+- Infrastructure changes without impacting applications
+- Separate CI/CD processes for infrastructure and applications
+- Environment-specific configurations (prod, dev, DR)
 
 ## Module Structure
 
@@ -77,7 +39,7 @@ The infrastructure is organized into the following modules:
 ### 3. ECS Module
 - **Purpose**: Runs containerized applications
 - **Components**:
-    - Fargate cluster configuration
+    - Cluster configuration (ec2 instances)
     - Task definitions and services with blue/green deployment capability
     - Load balancer and auto scaling
     - CodeDeploy integration for zero-downtime deployments
@@ -104,103 +66,53 @@ The infrastructure is organized into the following modules:
     - Grafana for visualization
     - Alerting configuration
 
-## Security Features
+### 7. Security Module
+- **Purpose**: Implements OWASP and AWS security best practices
+- **Components**:
+    - WAF configuration with OWASP rules
+    - Security headers and TLS configuration
+    - GuardDuty and AWS Config integration
 
-This infrastructure implements numerous security best practices:
+## Getting Started
 
-- **Network Isolation**: All resources run in private subnets where possible
-- **Encrypted Data**: Encryption at rest and in transit for all sensitive data
-- **Least Privilege**: IAM roles with minimum required permissions
-- **Network Monitoring**: VPC flow logs capture all network activity
-- **Security Groups**: Restrictive inbound/outbound rules for all resources
-- **TLS Encryption**: HTTPS for all public-facing services
-- **Automated Security Scanning**: Continuous security scanning with Checkov
-- **Terraform Linting**: Code quality enforcement with TFLint
-- **Pre-commit Hooks**: Automated checks before code commits
-- **Automated Patching**: Systems Manager Patch Manager for automatic security updates
-- **Instance Metadata Security**: IMDSv2 requirement enforced on all EC2 instances
-- **Immutable Infrastructure**: Updated AMIs instead of in-place patching
-- **OWASP Protection**: AWS WAF with OWASP Top 10 protections and security headers
-- **Threat Detection**: GuardDuty for continuous security monitoring
-- **Compliance Monitoring**: AWS Config for security configuration compliance
-- **Security Dashboard**: CloudWatch dashboard for security metrics visualization
+### Prerequisites
+- AWS CLI configured with appropriate permissions
+- Terraform v1.0+ installed
+- AWS account with appropriate permissions
 
-### OWASP Security Module
+### Deployment
 
-The project includes a dedicated security module implementing OWASP (Open Web Application Security Project) best practices:
+Each environment has its own deployment scripts and configurations:
 
-- AWS WAF with rules protecting against OWASP Top 10 vulnerabilities
-- Advanced security headers configuration following OWASP recommendations
-- TLS 1.2+ enforcement with secure cipher suites
-- Rate limiting to prevent brute force and DDoS attacks
-- See [OWASP Security Documentation](docs/OWASP_SECURITY.md) for details
+1. **Initialize Environment**:
+   ```bash
+   cd environments/<env>   # where <env> is dev, prod, or dr-pilot-light
+   terraform init
+   ```
 
-### Security Scanning Tools
+2. **Deploy Infrastructure Components**:
+   Each component can be deployed independently using the provided scripts:
+   
+   For Windows:
+   ```batch
+   deploy_infrastructure.bat [network|iam|ecs|database|cicd|monitoring|security|all]
+   ```
+   
+   For Linux/macOS:
+   ```bash
+   ./deploy_infrastructure.sh [network|iam|ecs|database|cicd|monitoring|security|all]
+   ```
 
-The project incorporates industry-standard security and quality scanning tools:
+3. **Set Up Secrets**:
+   ```bash
+   ./setup_secrets.sh   # On Linux/macOS
+   # OR
+   setup_secrets.bat    # On Windows
+   ```
 
-- **Checkov**: Static code analysis for infrastructure-as-code to detect misconfigurations and security issues
-- **TFLint**: Linting tool for Terraform to enforce best practices and catch errors early
-- **Pre-commit Hooks**: Automated checks that run before committing code changes
-- **SonarCloud**: Continuous code quality inspection for bugs, vulnerabilities, code smells, and security hotspots
-- **CI/CD Integration**: Security scanning integrated into GitHub Actions and Jenkins pipelines
-- See [Security Scanning Documentation](docs/SECURITY_SCANNING.md) for details
+## Environment Configuration
 
-## Monitoring Capabilities
-
-The monitoring solution provides:
-
-### Prometheus
-- Metric collection from ECS, RDS, and AWS resources
-- Long-term metrics storage with retention policies
-- Alert management for critical events
-
-### Grafana
-- Visualization dashboards for all infrastructure components
-- Pre-configured dashboards for common metrics
-- User-friendly interface for exploring metrics
-
-## CI/CD Pipeline
-
-The integrated CI/CD pipeline enables:
-
-1. Automated builds triggered by GitHub commits
-2. Comprehensive test execution
-3. Container image creation and registry storage
-4. Zero-downtime deployments to ECS using blue/green deployment strategy
-5. Automatic rollback capabilities for failed deployments
-6. Self-healing Jenkins infrastructure using auto-scaling groups
-
-## Next Steps
-
-For detailed setup and usage instructions, see [Usage-and-Applicaton-Guide.md](Usage-and-Applicaton-Guide.md).
-
-## Patching and Update Strategy
-
-This infrastructure implements a comprehensive strategy for maintaining up-to-date and secure systems:
-
-### Managed AMIs
-- Uses the latest ECS-optimized Amazon Linux AMIs via dynamic data sources
-- Automatically selects the most recent secure AMIs for all EC2 instances
-
-### Automated Patching
-- Systems Manager (SSM) Patch Manager for ongoing security updates
-- Scheduled maintenance windows with minimal service disruption
-- Patch compliance reporting and monitoring
-
-### Immutable Infrastructure
-- Blue/Green deployments for both application services and infrastructure
-- EC2 instance replacement instead of in-place patching
-- Auto Scaling Groups with instance refresh policies
-
-### Monitoring and Notifications
-- SNS notifications for patch status and instance replacements
-- CloudWatch metrics for patch compliance
-- Health check integration with deployment processes
-
-## Multi-Environment Architecture
-
-This project supports multiple environments with specialized configurations:
+The project supports multiple environments with specialized configurations:
 
 ### Development Environment
 - Optimized for cost efficiency with spot instances
@@ -212,28 +124,34 @@ This project supports multiple environments with specialized configurations:
 - Enhanced scaling parameters for production workloads
 - Stricter security controls and monitoring
 
-## Disaster Recovery Strategy
-
-The infrastructure includes a comprehensive DR strategy:
-
-### Pilot Light in Secondary Region
-- Minimal running infrastructure in a secondary AWS region (us-west-2)
+### DR Pilot Light Environment
+- Minimal running infrastructure in a secondary AWS region
 - Uses spot instances for cost efficiency during normal operations
 - Auto scaling capabilities to rapidly expand during failover events
-- Warm pool of stopped instances for faster recovery
 
-### Automated Failover Testing
-- Scheduled Lambda function for regular DR testing
-- Route 53 health checks for automatic traffic routing
-- Blue/Green deployment capability across regions
-- SNS notifications for failover events and status updates
+## Secrets Management
 
-### Cross-Region Data Replication
-- Database snapshots replicated to DR region
-- Automated synchronization of critical configuration data
-- State tracking for replication health and consistency
+This project uses AWS Secrets Manager for handling sensitive information:
 
-### Multi-Region Coordination
-- Route 53 for DNS-based failover between regions
-- CloudWatch for cross-region monitoring
-- Centralized logging for comprehensive visibility
+1. No sensitive data is stored in the Terraform code
+2. All secrets are referenced from AWS Secrets Manager
+3. Environment-specific secrets are separated by path
+
+## GitHub Workflow
+
+The project uses GitHub for source control with the following branch strategy:
+- `main`: Production-ready code
+- `dev`: Development environment code
+- `feature/*`: Feature branches
+- `hotfix/*`: Emergency fixes
+
+CI/CD pipelines are configured for automatic testing and deployment.
+
+## Additional Documentation
+
+For more detailed documentation, see:
+- [Modular Deployment Guide](docs/MODULAR_DEPLOYMENT.md)
+- [GitHub Branch Strategy](docs/GITHUB_BRANCH_STRATEGY.md)
+- [Security Implementation](docs/SECURITY_IMPLEMENTATION.md)
+- [Disaster Recovery Plan](docs/DISASTER_RECOVERY.md)
+- [CI/CD Pipeline](docs/CI_CD_PIPELINE.md)
